@@ -38,7 +38,7 @@ public class Manager {
             subTask.setEpicId(epic.getId());
             subTasksStatuses.add(subTask.getStatus());
         }
-        for (int i = 0; i <subTasks.size(); i++) {
+        for (int i = 0; i < subTasks.size(); i++) {
             if (subTasksStatuses.get(i).equals(statuses[0])) {
                 counter += 0;
             } else if (subTasksStatuses.get(i).equals(statuses[2])) {
@@ -80,21 +80,21 @@ public class Manager {
 
     public void printAllTasks() {
         System.out.println("Список обычных задач:");
-        for(Task task : tasksMap.values()) {
+        for (Task task : tasksMap.values()) {
             System.out.println(task.name);
         }
     }
 
     public void printAllEpics() {
         System.out.println("Список эпиков:");
-        for(Epic epic : epicTasksMap.values()) {
+        for (Epic epic : epicTasksMap.values()) {
             System.out.println(epic.name);
         }
     }
 
     public void printAllSubTasks() {
         System.out.println("Список всех подзадач:");
-        for(SubTask task : subTasksMap.values()) {
+        for (SubTask task : subTasksMap.values()) {
             System.out.println(task.name);
         }
     }
@@ -125,7 +125,7 @@ public class Manager {
 
     public void removeAllSubTasks() {
         subTasksMap.clear();
-        for(Epic epic : epicTasksMap.values()) {
+        for (Epic epic : epicTasksMap.values()) {
             syncEpic(epic);
         }
     }
@@ -137,7 +137,7 @@ public class Manager {
 
     public void removeEpic(int epicId) {
         Epic epic = epicTasksMap.get(epicId);
-        for(int taskId : epic.getSubTaskIds()) {
+        for (int taskId : epic.getSubTaskIds()) {
             subTasksMap.remove(taskId);
         }
         epicTasksMap.remove(epicId);
