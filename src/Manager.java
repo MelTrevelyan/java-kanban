@@ -107,18 +107,15 @@ public class Manager {
     }
 
     public Task getTask(int taskId) {
-        Task task = tasksMap.get(taskId);
-        return task;
+        return tasksMap.get(taskId);
     }
 
     public Epic getEpic(int epicId) {
-        Epic epic = epicTasksMap.get(epicId);
-        return epic;
+        return epicTasksMap.get(epicId);
     }
 
     public SubTask getSubTask(int SubTaskId) {
-        SubTask task = subTasksMap.get(SubTaskId);
-        return task;
+        return subTasksMap.get(SubTaskId);
     }
 
     public void removeAllTasks() {
