@@ -1,13 +1,17 @@
+import Tasks.Epic;
+import Tasks.SubTask;
+import Tasks.Task;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Manager {
 
-    protected int nextId = 1;
-    protected HashMap<Integer, Task> tasksMap = new HashMap<>();
-    protected HashMap<Integer, Epic> epicTasksMap = new HashMap<>();
-    protected HashMap<Integer, SubTask> subTasksMap = new HashMap<>();
-    String[] statuses = {"NEW", "IN_PROGRESS", "DONE"};
+    private int nextId = 1;
+    private HashMap<Integer, Task> tasksMap = new HashMap<>();
+    private HashMap<Integer, Epic> epicTasksMap = new HashMap<>();
+    private HashMap<Integer, SubTask> subTasksMap = new HashMap<>();
+    private String[] statuses = {"NEW", "IN_PROGRESS", "DONE"};
 
     public void addTask(Task task) {
         task.setId(nextId++);
@@ -70,7 +74,7 @@ public class Manager {
         SubTask oldSubTask = getSubTask(task.getId());
         task.setEpicId(oldSubTask.getEpicId());
         subTasksMap.put(task.getId(), task);
-        Epic epic = epicTasksMap.get(task.epicId);
+        Epic epic = epicTasksMap.get(task.getEpicId());
         syncEpic(epic);
     }
 
@@ -78,25 +82,28 @@ public class Manager {
         tasksMap.put(task.getId(), task);
     }
 
-    public void printAllTasks() {
-        System.out.println("Список обычных задач:");
+    public ArrayList getAllTasks() {
+        ArrayList<Task> tasks = new ArrayList<>();
         for (Task task : tasksMap.values()) {
-            System.out.println(task.name);
+        tasks.add(task);
         }
+        return tasks;
     }
 
-    public void printAllEpics() {
-        System.out.println("Список эпиков:");
-        for (Epic epic : epicTasksMap.values()) {
-            System.out.println(epic.name);
-        }
-    }
-
-    public void printAllSubTasks() {
-        System.out.println("Список всех подзадач:");
+    public ArrayList getAllSubTasks() {
+        ArrayList<SubTask> subTasks = new ArrayList<>();
         for (SubTask task : subTasksMap.values()) {
-            System.out.println(task.name);
+            subTasks.add(task);
         }
+        return subTasks;
+    }
+
+    public ArrayList getAllEpics() {
+        ArrayList<Epic> epics = new ArrayList<>();
+        for (Epic epic : epicTasksMap.values()) {
+        epics.add(epic);
+        }
+        return epics;
     }
 
     public Task getTask(int taskId) {
@@ -147,6 +154,7 @@ public class Manager {
         int epicId = subTasksMap.get(subTaskId).getEpicId();
         Epic epic = getEpic(epicId);
         epic.removeTaskId(subTaskId);
+        subTasksMap.remove(subTaskId);
         syncEpic(epicTasksMap.get(epicId));
     }
 

@@ -1,3 +1,7 @@
+import Tasks.Epic;
+import Tasks.SubTask;
+import Tasks.Task;
+
 public class Main {
 
     public static void main(String[] args) {
@@ -28,9 +32,9 @@ public class Main {
         epic2.addSubTaskId(task21.getId());
         manager.addEpic(epic2);
 
-        System.out.println(manager.tasksMap);
-        System.out.println(manager.subTasksMap);
-        System.out.println(manager.epicTasksMap);
+        System.out.println(manager.getAllTasks());
+        System.out.println(manager.getAllEpics());
+        System.out.println(manager.getAllSubTasks());
 
         Task task10 = new Task("Купить цветы", "маме", 1, "DONE");
         manager.updateTask(task10);
@@ -41,9 +45,11 @@ public class Main {
         Epic epic20 = new Epic("Купить машину", "тойоту", 7, "DONE");
         manager.updateEpic(epic20);
 
-        System.out.println(manager.tasksMap);
-        System.out.println(manager.subTasksMap);
-        System.out.println(manager.epicTasksMap);
+        System.out.println(manager.getAllTasks());
+        System.out.println(manager.getAllEpics());
+        System.out.println(manager.getAllSubTasks());
+
+
 
         manager.removeTask(task1.getId());
         manager.removeSubTask(stask10.getId());
