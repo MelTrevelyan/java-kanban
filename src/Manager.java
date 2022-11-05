@@ -61,7 +61,6 @@ public class Manager {
         }
     }
 
-
     public void updateEpic(Epic epic) {
         Epic oldEpic = getEpic(epic.getId());
         ArrayList<Integer> oldEpicSubsIds = oldEpic.getSubTaskIds();
@@ -125,8 +124,7 @@ public class Manager {
     public void removeTask(int taskId) {
         tasksMap.remove(taskId);
     }
-
-
+    
     public void removeEpic(int epicId) {
         Epic epic = epicTasksMap.get(epicId);
         for (int taskId : epic.getSubTaskIds()) {
