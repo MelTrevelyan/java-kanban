@@ -49,8 +49,6 @@ public class Main {
         System.out.println(manager.getAllEpics());
         System.out.println(manager.getAllSubTasks());
 
-
-
         manager.removeTask(task1.getId());
         manager.removeSubTask(stask10.getId());
         manager.removeEpic(epic20.getId());

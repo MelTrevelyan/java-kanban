@@ -82,28 +82,16 @@ public class Manager {
         tasksMap.put(task.getId(), task);
     }
 
-    public ArrayList getAllTasks() {
-        ArrayList<Task> tasks = new ArrayList<>();
-        for (Task task : tasksMap.values()) {
-        tasks.add(task);
-        }
-        return tasks;
+    public ArrayList<Task> getAllTasks() {
+        return new ArrayList<>(tasksMap.values());
     }
 
-    public ArrayList getAllSubTasks() {
-        ArrayList<SubTask> subTasks = new ArrayList<>();
-        for (SubTask task : subTasksMap.values()) {
-            subTasks.add(task);
-        }
-        return subTasks;
+    public ArrayList<SubTask> getAllSubTasks() {
+        return new ArrayList<>(subTasksMap.values());
     }
 
-    public ArrayList getAllEpics() {
-        ArrayList<Epic> epics = new ArrayList<>();
-        for (Epic epic : epicTasksMap.values()) {
-        epics.add(epic);
-        }
-        return epics;
+    public ArrayList<Epic> getAllEpics() {
+        return new ArrayList<>(epicTasksMap.values());
     }
 
     public Task getTask(int taskId) {
