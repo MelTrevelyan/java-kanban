@@ -1,3 +1,5 @@
+package Managers;
+
 import Tasks.Epic;
 import Tasks.Statuses;
 import Tasks.SubTask;
@@ -5,23 +7,27 @@ import Tasks.Task;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * @author Дарья Толстоногова
  * Этот класс включает в себя основную логику работы трекера задач
  */
-public class Manager {
+public class InMemoryTaskManager implements TaskManager {
 
     private int nextId = 1;
     private HashMap<Integer, Task> tasksMap = new HashMap<>();
     private HashMap<Integer, Epic> epicTasksMap = new HashMap<>();
     private HashMap<Integer, SubTask> subTasksMap = new HashMap<>();
 
+    private List<Task> tasksHistory = new ArrayList<>();
+
     /**
      * Метод устанавливает индивидуальный id обычной задаче;
      * Затем помещает её в tasksMap, где ключ - её id;
      * @param task - готовая задача, поступающая извне;
      */
+    @Override
     public void addTask(Task task) {
         task.setId(nextId++);
         tasksMap.put(task.getId(), task);
@@ -34,6 +40,7 @@ public class Manager {
      * Устанавливаем подзадачам id их эпика;
      * Обновляем статус эпика;
      */
+    @Override
     public void addEpic(Epic epic) {
         epic.setId(nextId++);
         epicTasksMap.put(epic.getId(), epic);
@@ -45,6 +52,7 @@ public class Manager {
      * Затем помещает её в subTasksMap, где ключ - её id;
      * @param task - готовая подзадача, поступающая извне;
      */
+    @Override
     public void addSubTask(SubTask task) {
         task.setId(nextId++);
         subTasksMap.put(task.getId(), task);
@@ -96,8 +104,9 @@ public class Manager {
      * Обновляем статус эпика;
      * @param epic - изменённый эпик, существующий в epicTasksMap;
      */
+    @Override
     public void updateEpic(Epic epic) {
-        Epic oldEpic = getEpic(epic.getId());
+        Epic oldEpic = epicTasksMap.get(epic.getId());
         ArrayList<Integer> oldEpicSubsIds = oldEpic.getSubTaskIds();
         epicTasksMap.put(epic.getId(), epic);
         epic.setSubTaskIds(oldEpicSubsIds);
@@ -111,8 +120,9 @@ public class Manager {
      * Обновляем статус эпика;
      * @param task - обновлённая подзадача, существующая в subTasksMap;
      */
+    @Override
     public void updateSubTask(SubTask task) {
-        SubTask oldSubTask = getSubTask(task.getId());
+        SubTask oldSubTask = subTasksMap.get(task.getId());
         task.setEpicId(oldSubTask.getEpicId());
         subTasksMap.put(task.getId(), task);
         Epic epic = epicTasksMap.get(task.getEpicId());
@@ -123,6 +133,7 @@ public class Manager {
      * Метод обновляет задачу в tasksMap;
      * @param task обновлённая задача, существующая в tasksMap;
      */
+    @Override
     public void updateTask(Task task) {
         tasksMap.put(task.getId(), task);
     }
@@ -130,6 +141,7 @@ public class Manager {
     /**
      * Метод возвращает список обычных задач;
      */
+    @Override
     public ArrayList<Task> getAllTasks() {
         return new ArrayList<>(tasksMap.values());
     }
@@ -137,6 +149,7 @@ public class Manager {
     /**
      * Метод возвращает список подзадач;
      */
+    @Override
     public ArrayList<SubTask> getAllSubTasks() {
         return new ArrayList<>(subTasksMap.values());
     }
@@ -144,25 +157,33 @@ public class Manager {
     /**
      * Метод возвращает список эпиков;
      */
+    @Override
     public ArrayList<Epic> getAllEpics() {
         return new ArrayList<>(epicTasksMap.values());
     }
 
+    @Override
     public Task getTask(int taskId) {
+        tasksHistory.add(tasksMap.get(taskId));
         return tasksMap.get(taskId);
     }
 
+    @Override
     public Epic getEpic(int epicId) {
+        tasksHistory.add(epicTasksMap.get(epicId));
         return epicTasksMap.get(epicId);
     }
 
+    @Override
     public SubTask getSubTask(int SubTaskId) {
+        tasksHistory.add(subTasksMap.get(SubTaskId));
         return subTasksMap.get(SubTaskId);
     }
 
     /**
      * Метод полностью очищает обычные задачи в tasksMap;
      */
+    @Override
     public void removeAllTasks() {
         tasksMap.clear();
     }
@@ -170,6 +191,7 @@ public class Manager {
     /**
      * Метод полностью очищает эпики и подзадачи в epicTasksMap и subTasksMap;
      */
+    @Override
     public void removeAllEpics() {
         epicTasksMap.clear();
         removeAllSubTasks();
@@ -178,6 +200,7 @@ public class Manager {
     /**
      * Метод полностью очищает подзадачи в subTasksMap;
      */
+    @Override
     public void removeAllSubTasks() {
         subTasksMap.clear();
         for (Epic epic : epicTasksMap.values()) {
@@ -189,6 +212,7 @@ public class Manager {
      * Метод удаляет задачу по её id;
      * @param taskId указывает, какую задачу удалить;
      */
+    @Override
     public void removeTask(int taskId) {
         tasksMap.remove(taskId);
     }
@@ -197,6 +221,7 @@ public class Manager {
      * Метод удаляет эпик с его подзадачами;
      * @param epicId указывает, какой эпик удалить;
      */
+    @Override
     public void removeEpic(int epicId) {
         Epic epic = epicTasksMap.get(epicId);
         for (int taskId : epic.getSubTaskIds()) {
@@ -212,9 +237,10 @@ public class Manager {
      * Обновляем статус эпика;
      * @param subTaskId указывает, какую подзадачу удалить;
      */
+    @Override
     public void removeSubTask(int subTaskId) {
         int epicId = subTasksMap.get(subTaskId).getEpicId();
-        Epic epic = getEpic(epicId);
+        Epic epic = epicTasksMap.get(epicId);
         epic.removeTaskId(subTaskId);
         subTasksMap.remove(subTaskId);
         syncEpic(epicTasksMap.get(epicId));
@@ -224,6 +250,7 @@ public class Manager {
      * Метод печатает название эпика и всех его подзадач;
      * @param epicId указывает, про какой эпик нужно печатать информацию;
      */
+    @Override
     public void printSubTasksOfEpic(int epicId) {
         System.out.println("Эпик: " + epicTasksMap.get(epicId).getName() + ". Его подзадачи: ");
         for (int taskId : epicTasksMap.get(epicId).getSubTaskIds()) {
@@ -231,9 +258,30 @@ public class Manager {
         }
     }
 
+    /**
+     * Метод печатает последние 10 просмотренных задач;
+     * Если просматривалось больше 10 задач, в tasksHistory удаляются старые;
+     */
+    @Override
+    public void getHistory() {
+        int count = tasksHistory.size();
+        if (tasksHistory.isEmpty()) {
+            System.out.println("Вы еще не просматривали задачи");
+            return;
+        } else if (tasksHistory.size() > 10) {
+            for (int i = 0; i < count - 10; i++) {
+                tasksHistory.remove(i);
+            }
+        }
+        System.out.println("Последние просмотренные задачи:");
+        for (Task task : tasksHistory) {
+            System.out.println(task.getName());
+        }
+    }
+
     @Override
     public String toString() {
-        return "Manager{" +
+        return "Managers.Manager{" +
                 "tasksMap=" + tasksMap +
                 ", epicTasksMap=" + epicTasksMap +
                 ", subTasksMap=" + subTasksMap +

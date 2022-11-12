@@ -1,3 +1,4 @@
+import Managers.InMemoryTaskManager;
 import Tasks.Epic;
 import Tasks.Statuses;
 import Tasks.SubTask;
@@ -18,7 +19,7 @@ public class Main {
                 Statuses.IN_PROGRESS, 0);
         Epic epic2 = new Epic("Купить машину", "тойоту", 0, Statuses.NEW);
 
-        Manager manager = new Manager();
+        InMemoryTaskManager manager = new InMemoryTaskManager();
 
         manager.addTask(task1);
         manager.addTask(task2);
@@ -50,8 +51,15 @@ public class Main {
         System.out.println(manager.getAllEpics());
         System.out.println(manager.getAllSubTasks());
 
-        manager.removeTask(task1.getId());
-        manager.removeSubTask(stask10.getId());
-        manager.removeEpic(epic20.getId());
+        manager.getHistory();
+
+        manager.getEpic(5);
+        manager.getSubTask(3);
+        manager.getSubTask(4);
+        manager.getTask(1);
+        manager.getTask(2);
+
+
+        manager.getHistory();
     }
 }
