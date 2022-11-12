@@ -1,4 +1,5 @@
 import Tasks.Epic;
+import Tasks.Statuses;
 import Tasks.SubTask;
 import Tasks.Task;
 
@@ -15,7 +16,6 @@ public class Manager {
     private HashMap<Integer, Task> tasksMap = new HashMap<>();
     private HashMap<Integer, Epic> epicTasksMap = new HashMap<>();
     private HashMap<Integer, SubTask> subTasksMap = new HashMap<>();
-    private String[] statuses = {"NEW", "IN_PROGRESS", "DONE"};
 
     /**
      * Метод устанавливает индивидуальный id обычной задаче;
@@ -57,10 +57,10 @@ public class Manager {
      */
     private void syncEpic(Epic epic) {
         ArrayList<Integer> subTasks = epic.getSubTaskIds();
-        ArrayList<String> subTasksStatuses = new ArrayList<>();
+        ArrayList<Statuses> subTasksStatuses = new ArrayList<>();
         int counter = 0;
         if (subTasks.isEmpty()) {
-            epic.setStatus(statuses[0]);
+            epic.setStatus(Statuses.NEW);
             return;
         }
         for (int taskId : subTasks) {
@@ -69,21 +69,21 @@ public class Manager {
             subTasksStatuses.add(subTask.getStatus());
         }
         for (int i = 0; i < subTasks.size(); i++) {
-            if (subTasksStatuses.get(i).equals(statuses[0])) {
+            if (subTasksStatuses.get(i) == Statuses.NEW) {
                 counter += 0;
-            } else if (subTasksStatuses.get(i).equals(statuses[2])) {
+            } else if (subTasksStatuses.get(i) == Statuses.DONE) {
                 counter += 1;
             } else {
-                epic.setStatus(statuses[1]);
+                epic.setStatus(Statuses.IN_PROGRESS);
                 return;
             }
         }
         if (counter == 0) {
-            epic.setStatus(statuses[0]);
+            epic.setStatus(Statuses.NEW);
         } else if (counter == subTasks.size()) {
-            epic.setStatus(statuses[2]);
+            epic.setStatus(Statuses.DONE);
         } else {
-            epic.setStatus(statuses[1]);
+            epic.setStatus(Statuses.IN_PROGRESS);
         }
     }
 
