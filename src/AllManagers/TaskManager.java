@@ -1,4 +1,4 @@
-package Managers;
+package AllManagers;
 
 import Tasks.Epic;
 import Tasks.SubTask;
@@ -46,5 +46,4 @@ public interface TaskManager {
 
     void printSubTasksOfEpic(int epicId);
 
-    void getHistory();
 }
