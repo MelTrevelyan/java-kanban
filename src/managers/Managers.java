@@ -1,10 +1,10 @@
-package AllManagers;
+package managers;
 
+/**
+ * Утилитарный класс Managers занимается созданием менеджера задач и менеждера истории задач;
+ */
 public class Managers {
 
-    /**
-     * Утилитарный класс Managers занимается созданием менеджера задач и менеждера истории задач;
-     */
     public static HistoryManager historyManager = new InMemoryHistoryManager();
 
     public static TaskManager getDefault() {
