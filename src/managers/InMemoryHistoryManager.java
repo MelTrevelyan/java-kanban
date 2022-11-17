@@ -3,19 +3,18 @@ package managers;
 import tasks.Task;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class InMemoryHistoryManager implements HistoryManager {
-    private List<Task> tasksHistory = new ArrayList<>();
+    private List<Task> tasksHistory = new LinkedList<>();
 
     @Override
     public void add(Task task) {
         tasksHistory.add(task);
         int count = tasksHistory.size();
-        if (tasksHistory.size() > 10) {
-            for (int i = 0; i < count - 10; i++) {
-                tasksHistory.remove(i);
-            }
+        if (count > 10) {
+            tasksHistory.remove(0);
         }
     }
 
@@ -26,6 +25,6 @@ public class InMemoryHistoryManager implements HistoryManager {
         } else {
             System.out.println("Последние просмотренные задачи:");
         }
-        return tasksHistory;
+        return new ArrayList<>(tasksHistory);
     }
 }

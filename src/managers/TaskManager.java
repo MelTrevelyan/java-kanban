@@ -6,6 +6,9 @@ import tasks.Task;
 
 import java.util.ArrayList;
 
+/**
+ * Интерфейс включает в себя основные методы менеджера задач;
+ */
 public interface TaskManager {
 
     /**
