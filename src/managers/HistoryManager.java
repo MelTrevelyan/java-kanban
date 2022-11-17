@@ -4,6 +4,9 @@ import tasks.Task;
 
 import java.util.List;
 
+/**
+ * Интерфейс описывает методы менеджера истории просмотра задач;
+ */
 public interface HistoryManager {
 
     /**
