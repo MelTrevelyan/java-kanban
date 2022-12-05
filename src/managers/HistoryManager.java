@@ -23,4 +23,10 @@ public interface HistoryManager {
      * Или сообщает, что список пустой;
      */
     List<Task> getHistory();
+
+    /**
+     * Метод удаляет задачу из истории просмотра;
+     * @param id обозначает какую задачу надо удалить;
+     */
+    void remove(int id);
 }
