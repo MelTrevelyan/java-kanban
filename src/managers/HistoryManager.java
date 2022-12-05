@@ -25,7 +25,7 @@ public interface HistoryManager {
     List<Task> getHistory();
 
     /**
-     * Метод удаляет задачу из истории просмотра;
+     * Метод удаляет задачу из истории просмотров;
      * @param id обозначает какую задачу надо удалить;
      */
     void remove(int id);

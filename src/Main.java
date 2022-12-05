@@ -35,10 +35,6 @@ public class Main {
         epic2.addSubTaskId(task21.getId());
         manager.addEpic(epic2);
 
-        System.out.println(manager.getAllTasks());
-        System.out.println(manager.getAllEpics());
-        System.out.println(manager.getAllSubTasks());
-
         Task task10 = new Task("Купить цветы", "маме", 1, Status.DONE);
         manager.updateTask(task10);
 
@@ -62,6 +58,14 @@ public class Main {
         manager.getTask(1);
         System.out.println(history.getHistory());
         manager.getTask(2);
+        System.out.println(history.getHistory());
+        manager.getEpic(5);
+        System.out.println(history.getHistory());
+        manager.getSubTask(3);
+        System.out.println(history.getHistory());
+        manager.removeTask(1);
+        System.out.println(history.getHistory());
+        manager.removeEpic(5);
         System.out.println(history.getHistory());
     }
 }
