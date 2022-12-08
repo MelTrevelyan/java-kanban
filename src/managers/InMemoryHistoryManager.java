@@ -12,14 +12,14 @@ import java.util.Map;
  */
 public class InMemoryHistoryManager implements HistoryManager {
 
-    private final Map<Integer, Node<Task>> history = new HashMap<>(0);
-    private Node<Task> head;
-    private Node<Task> tail;
+    private final Map<Integer, Node> history = new HashMap<>(0);
+    private Node head;
+    private Node tail;
 
     @Override
     public void add(Task task) {
         if (history.containsKey(task.getId())) {
-            removeNode(history.get(task.getId()));
+            removeNode(history.remove(task.getId()));
         }
         linkLast(task);
     }
@@ -36,17 +36,17 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public void remove(int id) {
-        removeNode(history.get(id));
+        removeNode(history.remove(id));
     }
 
     private void linkLast(Task task) {
         if (history.isEmpty()) {
-            Node<Task> firstNode = new Node<>(task, null, null);
+            Node firstNode = new Node(task, null, null);
             head = firstNode;
             tail = firstNode;
             history.put(task.getId(), firstNode);
         } else {
-            Node<Task> nextNode = new Node<>(task, tail, null);
+            Node nextNode = new Node(task, tail, null);
             tail.nextTask = nextNode;
             history.put(tail.task.getId(), tail);
             tail = nextNode;
@@ -56,15 +56,23 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     private List<Task> getTasks() {
         Task[] tasks = new Task[history.size()];
-        int i = 0;
-        for (Node<Task> x = head; x != null; x = x.nextTask) {
-            tasks[i++] = x.task;
+        int i = 1;
+        Node saved = head;
+        if (head != null) {
+            tasks[0] = head.task;
+            while (saved.nextTask != null) {
+                saved = saved.nextTask;
+                tasks[i++] = saved.task;
+            }
         }
         return Arrays.asList(tasks);
     }
 
-    private void removeNode(Node<Task> node) {
-        if (node.equals(head)) {
+    private void removeNode(Node node) {
+        if (node.equals(head) && node.equals(tail)) {
+            head = null;
+            tail = null;
+        } else if (node.equals(head)) {
             node.nextTask.prevTask = null;
             head = node.nextTask;
         } else if (node.equals(tail)) {

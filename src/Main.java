@@ -67,5 +67,7 @@ public class Main {
         System.out.println(history.getHistory());
         manager.removeEpic(5);
         System.out.println(history.getHistory());
+        manager.removeTask(2);
+        System.out.println(history.getHistory());
     }
 }
