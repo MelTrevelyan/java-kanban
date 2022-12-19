@@ -127,9 +127,9 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public SubTask getSubTask(int SubTaskId) {
-        Managers.historyManager.add(subTasksMap.get(SubTaskId));
-        return subTasksMap.get(SubTaskId);
+    public SubTask getSubTask(int subTaskId) {
+        Managers.historyManager.add(subTasksMap.get(subTaskId));
+        return subTasksMap.get(subTaskId);
     }
 
     @Override

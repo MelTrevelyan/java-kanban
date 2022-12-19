@@ -85,7 +85,7 @@ public interface TaskManager {
 
     Epic getEpic(int epicId);
 
-    SubTask getSubTask(int SubTaskId);
+    SubTask getSubTask(int subTaskId);
 
     /**
      * Метод полностью очищает обычные задачи в tasksMap;

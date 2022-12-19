@@ -2,7 +2,7 @@ package managers;
 
 import tasks.Task;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,17 +55,16 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     private List<Task> getTasks() {
-        Task[] tasks = new Task[history.size()];
-        int i = 1;
+        List<Task> tasks = new ArrayList<>();
         Node saved = head;
         if (head != null) {
-            tasks[0] = head.task;
+            tasks.add(head.task);
             while (saved.nextTask != null) {
                 saved = saved.nextTask;
-                tasks[i++] = saved.task;
+                tasks.add(saved.task);
             }
         }
-        return Arrays.asList(tasks);
+        return new ArrayList<>(tasks);
     }
 
     private void removeNode(Node node) {
