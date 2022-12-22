@@ -26,11 +26,6 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public List<Task> getHistory() {
-        if (history.isEmpty()) {
-            System.out.println("Вы еще не просматривали задачи");
-        } else {
-            System.out.println("Последние просмотренные задачи:");
-        }
         return getTasks();
     }
 

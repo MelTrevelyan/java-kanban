@@ -15,9 +15,9 @@ import java.util.HashMap;
 public class InMemoryTaskManager implements TaskManager {
 
     private int nextId = 1;
-    private final HashMap<Integer, Task> tasksMap = new HashMap<>();
-    private final HashMap<Integer, Epic> epicTasksMap = new HashMap<>();
-    private final HashMap<Integer, SubTask> subTasksMap = new HashMap<>();
+    protected final HashMap<Integer, Task> tasksMap = new HashMap<>();
+    protected final HashMap<Integer, Epic> epicTasksMap = new HashMap<>();
+    protected final HashMap<Integer, SubTask> subTasksMap = new HashMap<>();
 
     @Override
     public void addTask(Task task) {
