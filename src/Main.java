@@ -7,7 +7,6 @@ import tasks.Task;
 public class Main {
 
     public static void main(String[] args) {
-        /*
         System.out.println("Поехали!");
         Task task1 = new Task("Купить цветы", "маме", 0, Status.NEW);
         Task task2 = new Task("Надуть шарики", "Чтобы украсить квартиру", 0, Status.DONE);
@@ -45,10 +44,6 @@ public class Main {
         Epic epic20 = new Epic("Купить машину", "тойоту", 7, Status.DONE);
         manager.updateEpic(epic20);
 
-        System.out.println(manager.getAllTasks());
-        System.out.println(manager.getAllEpics());
-        System.out.println(manager.getAllSubTasks());
-
         System.out.println(history.getHistory());
         manager.getEpic(5);
         System.out.println(history.getHistory());
@@ -70,7 +65,5 @@ public class Main {
         System.out.println(history.getHistory());
         manager.removeTask(2);
         System.out.println(history.getHistory());
-
-         */
     }
 }
