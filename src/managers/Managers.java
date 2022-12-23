@@ -1,5 +1,8 @@
 package managers;
 
+import managers.inmemory.InMemoryHistoryManager;
+import managers.inmemory.InMemoryTaskManager;
+
 /**
  * Утилитарный класс Managers занимается созданием менеджера задач и менеждера истории задач;
  */

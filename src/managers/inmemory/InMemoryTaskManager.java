@@ -1,5 +1,7 @@
-package managers;
+package managers.inmemory;
 
+import managers.Managers;
+import managers.TaskManager;
 import tasks.Epic;
 import tasks.Status;
 import tasks.SubTask;
