@@ -1,8 +1,9 @@
 package managers.filebacked;
 
-import managers.inmemory.InMemoryTaskManager;
+import exception.ManagerSaveException;
 import managers.Managers;
 import managers.TaskManager;
+import managers.inmemory.InMemoryTaskManager;
 import tasks.Epic;
 import tasks.Status;
 import tasks.SubTask;
@@ -15,8 +16,8 @@ import java.util.List;
 /**
  * Этот класс включает в себя основную логику работы трекера задач, сохраняющего данные в файл;
  */
-public class FileBackedTasksManager extends InMemoryTaskManager implements TaskManager {
-    File saving;
+public class FileBackedTasksManager extends InMemoryTaskManager {
+    private final File saving;
 
     public FileBackedTasksManager(File saving) {
         this.saving = saving;
@@ -110,17 +111,23 @@ public class FileBackedTasksManager extends InMemoryTaskManager implements TaskM
 
     @Override
     public ArrayList<Task> getAllTasks() {
-        return super.getAllTasks();
+        ArrayList<Task> allTasks = super.getAllTasks();
+        save();
+        return allTasks;
     }
 
     @Override
     public ArrayList<SubTask> getAllSubTasks() {
-        return super.getAllSubTasks();
+        ArrayList<SubTask> allSubTasks = super.getAllSubTasks();
+        save();
+        return allSubTasks;
     }
 
     @Override
     public ArrayList<Epic> getAllEpics() {
-        return super.getAllEpics();
+        ArrayList<Epic> allEpics = super.getAllEpics();
+        save();
+        return allEpics;
     }
 
     @Override
