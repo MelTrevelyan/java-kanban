@@ -1,6 +1,7 @@
 package managers.filebacked;
 
 import exception.ManagerSaveException;
+import managers.HistoryManager;
 import managers.Managers;
 import managers.TaskManager;
 import managers.inmemory.InMemoryTaskManager;
@@ -21,7 +22,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
     public FileBackedTasksManager(File saving) {
         this.saving = saving;
-        loadInfo();
     }
 
     public static void main(String[] args) {
@@ -193,8 +193,36 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         save();
     }
 
-    static FileBackedTasksManager loadFromFile(File file) {
-        return new FileBackedTasksManager(file);
+    public static FileBackedTasksManager loadFromFile(File file) {
+        FileBackedTasksManager manager = new FileBackedTasksManager(file);
+        HistoryManager historyManager = Managers.getDefaultHistory();
+        List<String> strings = new ArrayList<>();
+        try (FileReader fileReader = new FileReader(file)) {
+            BufferedReader br = new BufferedReader(fileReader);
+            while (br.ready()) {
+                String line = br.readLine();
+                strings.add(line);
+            }
+            if (strings.size() > 4) {
+                for (int i = 1; i < strings.size() - 2; i++) {
+                    manager.uploadTask(strings.get(i));
+                }
+                List<Integer> historyIds = new ArrayList<>(CsvConverter.historyFromString(strings.get(strings
+                        .size() - 1)));
+                for (Integer id : historyIds) {
+                    if (manager.epicTasksMap.containsKey(id)) {
+                        historyManager.add(manager.getEpic(id));
+                    } else if (manager.subTasksMap.containsKey(id)) {
+                        historyManager.add(manager.getSubTask(id));
+                    } else {
+                        historyManager.add(manager.getTask(id));
+                    }
+                }
+            }
+        } catch (IOException e) {
+            throw new ManagerSaveException();
+        }
+        return manager;
     }
 
     private void uploadTask(String text) {
@@ -205,38 +233,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
             super.addSubTask((SubTask) task);
         } else {
             super.addTask(task);
-        }
-    }
-
-    /**
-     * Метод читает файл, и по данным восстанавливает работу менеджера задач и менеджера истории;
-     */
-    private void loadInfo() {
-        List<String> strings = new ArrayList<>();
-        try (FileReader fileReader = new FileReader(saving)) {
-            BufferedReader br = new BufferedReader(fileReader);
-            while (br.ready()) {
-                String line = br.readLine();
-                strings.add(line);
-            }
-            if (strings.size() > 4) {
-                for (int i = 1; i < strings.size() - 2; i++) {
-                    uploadTask(strings.get(i));
-                }
-                List<Integer> historyIds = new ArrayList<>(CsvConverter.historyFromString(strings.get(strings
-                        .size() - 1)));
-                for (Integer id : historyIds) {
-                    if (super.epicTasksMap.containsKey(id)) {
-                        Managers.historyManager.add(getEpic(id));
-                    } else if (super.subTasksMap.containsKey(id)) {
-                        Managers.historyManager.add(getSubTask(id));
-                    } else {
-                        Managers.historyManager.add(getTask(id));
-                    }
-                }
-            }
-        } catch (IOException e) {
-            throw new ManagerSaveException();
         }
     }
 }
