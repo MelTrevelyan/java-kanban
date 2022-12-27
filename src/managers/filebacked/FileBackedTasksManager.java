@@ -34,6 +34,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         Epic epic1 = new Epic("Переезд", "В Казань", 0, Status.DONE);
 
         manager.addSubTask(stask1);
+        manager.getSubTask(1);
         manager = loadFromFile(save);
         manager.addSubTask(stask2);
 
@@ -41,8 +42,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         epic1.addSubTaskId(stask2.getId());
         manager.addEpic(epic1);
 
-
-        manager.getSubTask(1);
         manager.getSubTask(2);
         manager.getEpic(3);
         manager.getSubTask(1);
@@ -50,8 +49,8 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         manager = loadFromFile(save);
 
         manager.addTask(task1);
-        manager.getTask(4);
         manager.addTask(task2);
+        manager.getTask(4);
 
         System.out.println(manager.getHistory());
     }
@@ -198,18 +197,22 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     public static FileBackedTasksManager loadFromFile(File file) {
         FileBackedTasksManager manager = new FileBackedTasksManager(file);
         List<String> strings = new ArrayList<>();
+        int stringsSize;
         try (FileReader fileReader = new FileReader(file)) {
             BufferedReader br = new BufferedReader(fileReader);
             while (br.ready()) {
                 String line = br.readLine();
                 strings.add(line);
             }
-            if (strings.size() == 3) {
-                manager.nextId = 2;
-                manager.uploadTask(strings.get(1));
-            } else if (strings.size() > 4) {
-                manager.nextId = strings.size() - 2;
-                for (int i = 1; i < strings.size() - 2; i++) {
+            stringsSize = strings.size();
+            if (strings.get(stringsSize - 1).isEmpty()) {
+                manager.nextId = stringsSize - 1;
+                for (int i = 1; i < stringsSize - 1; i++) {
+                    manager.uploadTask(strings.get(i));
+                }
+            } else {
+                manager.nextId = stringsSize - 2;
+                for (int i = 1; i < stringsSize - 2; i++) {
                     manager.uploadTask(strings.get(i));
                 }
                 List<Integer> historyIds = new ArrayList<>(CsvConverter.historyFromString(strings.get(strings
