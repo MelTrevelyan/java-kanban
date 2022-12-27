@@ -5,6 +5,7 @@ import tasks.SubTask;
 import tasks.Task;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Интерфейс включает в себя основные методы менеджера задач;
@@ -133,4 +134,8 @@ public interface TaskManager {
      */
     void printSubTasksOfEpic(int epicId);
 
+    /**
+     * Метод получения списка просмотренных задач из соответствующего менеджера истории;
+     */
+    List<Task> getHistory();
 }

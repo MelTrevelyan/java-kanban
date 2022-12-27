@@ -1,5 +1,4 @@
-import managers.*;
-import managers.HistoryManager;
+import managers.Managers;
 import managers.TaskManager;
 import tasks.Epic;
 import tasks.Status;
@@ -22,7 +21,6 @@ public class Main {
         Epic epic2 = new Epic("Купить машину", "тойоту", 0, Status.NEW);
 
         TaskManager manager = Managers.getDefault();
-        HistoryManager history = Managers.getDefaultHistory();
 
         manager.addTask(task1);
         manager.addTask(task2);
@@ -46,26 +44,26 @@ public class Main {
         Epic epic20 = new Epic("Купить машину", "тойоту", 7, Status.DONE);
         manager.updateEpic(epic20);
 
-        System.out.println(history.getHistory());
+        System.out.println(manager.getHistory());
         manager.getEpic(5);
-        System.out.println(history.getHistory());
+        System.out.println(manager.getHistory());
         manager.getSubTask(3);
-        System.out.println(history.getHistory());
+        System.out.println(manager.getHistory());
         manager.getSubTask(4);
-        System.out.println(history.getHistory());
+        System.out.println(manager.getHistory());
         manager.getTask(1);
-        System.out.println(history.getHistory());
+        System.out.println(manager.getHistory());
         manager.getTask(2);
-        System.out.println(history.getHistory());
+        System.out.println(manager.getHistory());
         manager.getEpic(5);
-        System.out.println(history.getHistory());
+        System.out.println(manager.getHistory());
         manager.getSubTask(3);
-        System.out.println(history.getHistory());
+        System.out.println(manager.getHistory());
         manager.removeTask(1);
-        System.out.println(history.getHistory());
+        System.out.println(manager.getHistory());
         manager.removeEpic(5);
-        System.out.println(history.getHistory());
+        System.out.println(manager.getHistory());
         manager.removeTask(2);
-        System.out.println(history.getHistory());
+        System.out.println(manager.getHistory());
     }
 }

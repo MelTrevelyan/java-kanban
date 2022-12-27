@@ -1,8 +1,6 @@
 package managers.filebacked;
 
 import exception.ManagerSaveException;
-import managers.HistoryManager;
-import managers.Managers;
 import managers.TaskManager;
 import managers.inmemory.InMemoryTaskManager;
 import tasks.Epic;
@@ -36,11 +34,13 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         Epic epic1 = new Epic("Переезд", "В Казань", 0, Status.DONE);
 
         manager.addSubTask(stask1);
+        manager = loadFromFile(save);
         manager.addSubTask(stask2);
 
         epic1.addSubTaskId(stask1.getId());
         epic1.addSubTaskId(stask2.getId());
         manager.addEpic(epic1);
+
 
         manager.getSubTask(1);
         manager.getSubTask(2);
@@ -52,6 +52,8 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         manager.addTask(task1);
         manager.getTask(4);
         manager.addTask(task2);
+
+        System.out.println(manager.getHistory());
     }
 
     /**
@@ -59,14 +61,14 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
      */
     private void save() {
         try (Writer fileWriter = new FileWriter(saving)) {
-            List<Task> allTypesTasks = new ArrayList<>(super.tasksMap.values());
-            allTypesTasks.addAll(super.epicTasksMap.values());
-            allTypesTasks.addAll(super.subTasksMap.values());
+            List<Task> allTypesTasks = new ArrayList<>(tasksMap.values());
+            allTypesTasks.addAll(epicTasksMap.values());
+            allTypesTasks.addAll(subTasksMap.values());
             fileWriter.write("id,type,name,status,description,epic\n");
             for (Task task : allTypesTasks) {
                 fileWriter.write(CsvConverter.toString(task) + "\n");
             }
-            fileWriter.write("\n" + CsvConverter.historyToString(Managers.historyManager));
+            fileWriter.write("\n" + CsvConverter.historyToString(super.historyManager));
 
         } catch (IOException e) {
             throw new ManagerSaveException();
@@ -195,7 +197,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
     public static FileBackedTasksManager loadFromFile(File file) {
         FileBackedTasksManager manager = new FileBackedTasksManager(file);
-        HistoryManager historyManager = Managers.getDefaultHistory();
         List<String> strings = new ArrayList<>();
         try (FileReader fileReader = new FileReader(file)) {
             BufferedReader br = new BufferedReader(fileReader);
@@ -203,7 +204,11 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 String line = br.readLine();
                 strings.add(line);
             }
-            if (strings.size() > 4) {
+            if (strings.size() == 3) {
+                manager.nextId = 2;
+                manager.uploadTask(strings.get(1));
+            } else if (strings.size() > 4) {
+                manager.nextId = strings.size() - 2;
                 for (int i = 1; i < strings.size() - 2; i++) {
                     manager.uploadTask(strings.get(i));
                 }
@@ -211,11 +216,11 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                         .size() - 1)));
                 for (Integer id : historyIds) {
                     if (manager.epicTasksMap.containsKey(id)) {
-                        historyManager.add(manager.getEpic(id));
+                        manager.historyManager.add(manager.getEpic(id));
                     } else if (manager.subTasksMap.containsKey(id)) {
-                        historyManager.add(manager.getSubTask(id));
+                        manager.historyManager.add(manager.getSubTask(id));
                     } else {
-                        historyManager.add(manager.getTask(id));
+                        manager.historyManager.add(manager.getTask(id));
                     }
                 }
             }
@@ -228,11 +233,11 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     private void uploadTask(String text) {
         Task task = CsvConverter.fromString(text);
         if (task instanceof Epic) {
-            super.addEpic((Epic) task);
+            epicTasksMap.put(task.getId(), (Epic) task);
         } else if (task instanceof SubTask) {
-            super.addSubTask((SubTask) task);
+            subTasksMap.put(task.getId(), (SubTask) task);
         } else {
-            super.addTask(task);
+            tasksMap.put(task.getId(), task);
         }
     }
 }
