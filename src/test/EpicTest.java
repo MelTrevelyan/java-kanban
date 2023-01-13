@@ -11,7 +11,7 @@ import tasks.SubTask;
 
 class EpicTest {
 
-    private static TaskManager testManager;
+    private TaskManager testManager;
 
     @BeforeEach
     public void beforeEach() {
@@ -22,7 +22,8 @@ class EpicTest {
     public void epicStatusShouldBeNewWithEmptySubtasks() {
         Epic epic = new Epic("name1", "description1", 0, Status.DONE);
         testManager.addEpic(epic);
-        Assertions.assertEquals(Status.NEW, testManager.getEpic(1).getStatus());
+        Assertions.assertEquals(Status.NEW, testManager.getEpic(1).getStatus(), "Статус определяется" +
+                " неправильно");
     }
 
     @Test
@@ -36,7 +37,8 @@ class EpicTest {
         epic.addSubTaskId(stask1.getId());
         epic.addSubTaskId(stask2.getId());
         testManager.addEpic(epic);
-        Assertions.assertEquals(Status.NEW, testManager.getEpic(3).getStatus());
+        Assertions.assertEquals(Status.NEW, testManager.getEpic(3).getStatus(), "Статус определяется" +
+                " неправильно");
     }
 
     @Test
@@ -50,7 +52,8 @@ class EpicTest {
         epic.addSubTaskId(stask1.getId());
         epic.addSubTaskId(stask2.getId());
         testManager.addEpic(epic);
-        Assertions.assertEquals(Status.DONE, testManager.getEpic(3).getStatus());
+        Assertions.assertEquals(Status.DONE, testManager.getEpic(3).getStatus(), "Статус определяется" +
+                " неправильно");
     }
 
     @Test
@@ -64,7 +67,8 @@ class EpicTest {
         epic.addSubTaskId(stask1.getId());
         epic.addSubTaskId(stask2.getId());
         testManager.addEpic(epic);
-        Assertions.assertEquals(Status.IN_PROGRESS, testManager.getEpic(3).getStatus());
+        Assertions.assertEquals(Status.IN_PROGRESS, testManager.getEpic(3).getStatus(), "Статус" +
+                " определяется неправильно");
     }
 
     @Test
@@ -78,6 +82,7 @@ class EpicTest {
         epic.addSubTaskId(stask1.getId());
         epic.addSubTaskId(stask2.getId());
         testManager.addEpic(epic);
-        Assertions.assertEquals(Status.IN_PROGRESS, testManager.getEpic(3).getStatus());
+        Assertions.assertEquals(Status.IN_PROGRESS, testManager.getEpic(3).getStatus(), "Статус" +
+                " определяется неправильно");
     }
 }
