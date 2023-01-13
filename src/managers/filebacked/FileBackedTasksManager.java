@@ -27,11 +27,16 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         File save = new File("resources/save.csv");
         TaskManager manager = new FileBackedTasksManager(save);
 
-        Task task1 = new Task("Купить цветы", "маме", 0, Status.NEW);
-        Task task2 = new Task("Надуть шарики", "Чтобы украсить квартиру", 0, Status.DONE);
-        SubTask stask1 = new SubTask("Убрать документы", "в папки", 0, Status.NEW, 0);
-        SubTask stask2 = new SubTask("Сгруппировать вещи", "по коробкам", 0, Status.DONE, 0);
-        Epic epic1 = new Epic("Переезд", "В Казань", 0, Status.DONE);
+        Task task1 = new Task("Купить цветы", "маме", 0, Status.NEW, 100,
+                "13.01.2023;14:30");
+        Task task2 = new Task("Надуть шарики", "Чтобы украсить квартиру", 0, Status.DONE,
+                200, "10.02.2023;10:00");
+        SubTask stask1 = new SubTask("Убрать документы", "в папки", 0, Status.NEW, 20,
+                "11.02.2023;15:00", 0);
+        SubTask stask2 = new SubTask("Сгруппировать вещи", "по коробкам", 0, Status.DONE,
+                300, "11.02.2023;21:30", 0);
+        Epic epic1 = new Epic("Переезд", "В Казань", 0, Status.DONE, 0,
+                "14.02.2023;10:30");
 
         manager.addSubTask(stask1);
         manager.getSubTask(1);
@@ -64,7 +69,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
             List<Task> allTypesTasks = new ArrayList<>(tasksMap.values());
             allTypesTasks.addAll(epicTasksMap.values());
             allTypesTasks.addAll(subTasksMap.values());
-            fileWriter.write("id,type,name,status,description,epic\n");
+            fileWriter.write("id,type,name,status,description,minutes,startTime,epic\n");
             for (Task task : allTypesTasks) {
                 fileWriter.write(CsvConverter.toString(task) + "\n");
             }

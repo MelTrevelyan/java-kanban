@@ -8,6 +8,8 @@ import tasks.Task;
 
 import java.util.List;
 
+import static tasks.Task.FORMATTER;
+
 /**
  * Класс включает в себя набор статических методов для сохранения менеджера задач и менеджера истории в CSV файл;
  * И для их восстановления из CSV;
@@ -25,11 +27,12 @@ public class CsvConverter {
             status = Status.DONE;
         }
         if (split[1].equals("SUBTASK")) {
-            return new SubTask(split[2], split[4], Integer.parseInt(split[0]), status, Integer.parseInt(split[5]));
+            return new SubTask(split[2], split[4], Integer.parseInt(split[0]), status, Long.parseLong(split[5]),
+                    split[6], Integer.parseInt(split[7]));
         } else if (split[1].equals("EPIC")) {
-            return new Epic(split[2], split[4], Integer.parseInt(split[0]), status);
+            return new Epic(split[2], split[4], Integer.parseInt(split[0]), status, Long.parseLong(split[5]), split[6]);
         }
-        return new Task(split[2], split[4], Integer.parseInt(split[0]), status);
+        return new Task(split[2], split[4], Integer.parseInt(split[0]), status, Long.parseLong(split[5]), split[6]);
     }
 
     public static String historyToString(HistoryManager manager) {
@@ -61,7 +64,7 @@ public class CsvConverter {
         } else {
             taskType = TaskType.TASK;
         }
-        return String.format("%d,%s,%s,%s,%s,%s", task.getId(), taskType, task.getName(), task.getStatus(),
-                task.getDescription(), epicId);
+        return String.format("%d,%s,%s,%s,%s,%d,%s,%s", task.getId(), taskType, task.getName(), task.getStatus(),
+                task.getDescription(), task.getDuration().toMinutes(), task.getStartTime().format(FORMATTER), epicId);
     }
 }

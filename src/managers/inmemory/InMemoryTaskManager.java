@@ -8,6 +8,8 @@ import tasks.Status;
 import tasks.SubTask;
 import tasks.Task;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,6 +43,7 @@ public class InMemoryTaskManager implements TaskManager {
         epic.setId(nextId++);
         epicTasksMap.put(epic.getId(), epic);
         syncEpic(epic);
+        setEpicDuration(epic);
     }
 
     @Override
@@ -85,6 +88,25 @@ public class InMemoryTaskManager implements TaskManager {
         } else {
             epic.setStatus(Status.IN_PROGRESS);
         }
+    }
+
+    private void setEpicDuration(Epic epic) {
+        ArrayList<Integer> subTasks = epic.getSubTaskIds();
+        Duration epicDuration = Duration.ZERO;
+        LocalDateTime earliestStartTime = LocalDateTime.MAX;
+        LocalDateTime latestEndTime = LocalDateTime.MIN;
+        if (!subTasks.isEmpty()) {
+            for (int taskId : subTasks) {
+                SubTask subTask = subTasksMap.get(taskId);
+                if (subTask.getStartTime().isBefore(earliestStartTime)) {
+                    earliestStartTime = subTask.getStartTime();
+                } else if (subTask.getEndTime().isAfter(latestEndTime)) {
+                    latestEndTime = subTask.getEndTime();
+                }
+                epicDuration = Duration.between(earliestStartTime, latestEndTime);
+            }
+        }
+        epic.setDuration(epicDuration);
     }
 
     @Override

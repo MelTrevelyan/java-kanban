@@ -9,6 +9,7 @@ public class Main {
 
     public static void main(String[] args) {
         System.out.println("Поехали!");
+        /*
         Task task1 = new Task("Купить цветы", "маме", 0, Status.NEW);
         Task task2 = new Task("Надуть шарики", "Чтобы украсить квартиру", 0, Status.DONE);
 
@@ -65,5 +66,7 @@ public class Main {
         System.out.println(manager.getHistory());
         manager.removeTask(2);
         System.out.println(manager.getHistory());
+
+         */
     }
 }

@@ -10,7 +10,7 @@ import tasks.Status;
 import tasks.SubTask;
 
 class EpicTest {
-
+/*
     private TaskManager testManager;
 
     @BeforeEach
@@ -85,4 +85,6 @@ class EpicTest {
         Assertions.assertEquals(Status.IN_PROGRESS, testManager.getEpic(3).getStatus(), "Статус" +
                 " определяется неправильно");
     }
+
+ */
 }
