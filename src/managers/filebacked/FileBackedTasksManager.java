@@ -9,8 +9,11 @@ import tasks.SubTask;
 import tasks.Task;
 
 import java.io.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import static tasks.Task.FORMATTER;
 
 /**
  * Этот класс включает в себя основную логику работы трекера задач, сохраняющего данные в файл;
@@ -28,15 +31,16 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         TaskManager manager = new FileBackedTasksManager(save);
 
         Task task1 = new Task("Купить цветы", "маме", 0, Status.NEW, 100,
-                "13.01.2023;14:30");
+                LocalDateTime.parse("13.01.2023;14:30", FORMATTER));
         Task task2 = new Task("Надуть шарики", "Чтобы украсить квартиру", 0, Status.DONE,
-                200, "10.02.2023;10:00");
+                200, LocalDateTime.parse("10.02.2023;10:00", FORMATTER));
         SubTask stask1 = new SubTask("Убрать документы", "в папки", 0, Status.NEW, 20,
-                "11.02.2023;15:00", 0);
+                LocalDateTime.parse("11.02.2023;15:00", FORMATTER), 0);
         SubTask stask2 = new SubTask("Сгруппировать вещи", "по коробкам", 0, Status.DONE,
-                300, "11.02.2023;21:30", 0);
+                300, LocalDateTime.parse("11.02.2023;21:30", FORMATTER), 0);
         Epic epic1 = new Epic("Переезд", "В Казань", 0, Status.DONE, 0,
-                "14.02.2023;10:30");
+                null);
+        Epic epic2 = new Epic("name1", "description1", 0, Status.DONE, 500, null);
 
         manager.addSubTask(stask1);
         manager.getSubTask(1);
@@ -57,6 +61,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         manager.addTask(task1);
         manager.addTask(task2);
         manager.getTask(4);
+        manager.addEpic(epic2);
 
         System.out.println(manager.getHistory());
     }

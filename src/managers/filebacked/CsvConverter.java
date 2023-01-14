@@ -6,6 +6,7 @@ import tasks.Status;
 import tasks.SubTask;
 import tasks.Task;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static tasks.Task.FORMATTER;
@@ -28,11 +29,13 @@ public class CsvConverter {
         }
         if (split[1].equals("SUBTASK")) {
             return new SubTask(split[2], split[4], Integer.parseInt(split[0]), status, Long.parseLong(split[5]),
-                    split[6], Integer.parseInt(split[7]));
+                    LocalDateTime.parse(split[6], FORMATTER), Integer.parseInt(split[7]));
         } else if (split[1].equals("EPIC")) {
-            return new Epic(split[2], split[4], Integer.parseInt(split[0]), status, Long.parseLong(split[5]), split[6]);
+            return new Epic(split[2], split[4], Integer.parseInt(split[0]), status, Long.parseLong(split[5]),
+                    LocalDateTime.parse(split[6], FORMATTER));
         }
-        return new Task(split[2], split[4], Integer.parseInt(split[0]), status, Long.parseLong(split[5]), split[6]);
+        return new Task(split[2], split[4], Integer.parseInt(split[0]), status, Long.parseLong(split[5]),
+                LocalDateTime.parse(split[6], FORMATTER));
     }
 
     public static String historyToString(HistoryManager manager) {

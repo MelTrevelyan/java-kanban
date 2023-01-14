@@ -15,13 +15,13 @@ public class Task {
 
     public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy;HH:mm");
 
-    public Task(String name, String description, int id, Status status, long minutes, String startTime) {
+    public Task(String name, String description, int id, Status status, long minutes, LocalDateTime startTime) {
         this.name = name;
         this.description = description;
         this.id = id;
         this.status = status;
         this.duration = Duration.ofMinutes(minutes);
-        this.startTime = LocalDateTime.parse(startTime, FORMATTER);
+        this.startTime = startTime;
     }
 
     public LocalDateTime getEndTime() {

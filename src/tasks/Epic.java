@@ -7,7 +7,7 @@ public class Epic extends Task {
     protected ArrayList<Integer> subTaskIds = new ArrayList<>();
     protected LocalDateTime endTime;
 
-    public Epic(String name, String description, int id, Status status, long minutes, String startTime) {
+    public Epic(String name, String description, int id, Status status, long minutes, LocalDateTime startTime) {
         super(name, description, id, status, minutes, startTime);
     }
 

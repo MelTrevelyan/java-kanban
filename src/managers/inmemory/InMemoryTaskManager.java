@@ -11,6 +11,7 @@ import tasks.Task;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
@@ -19,6 +20,16 @@ import java.util.List;
  * Этот класс включает в себя основную логику работы трекера задач
  */
 public class InMemoryTaskManager implements TaskManager {
+
+    protected Comparator<Task> comparator = (o1, o2) -> {
+        if (o1.getStartTime().isBefore(o2.getStartTime())) {
+            return 1;
+        } else if (o1.getStartTime().equals(o2.getStartTime())) {
+            return 0;
+        } else {
+            return -1;
+        }
+    };
 
     protected int nextId = 1;
     protected final HashMap<Integer, Task> tasksMap = new HashMap<>();
@@ -103,8 +114,13 @@ public class InMemoryTaskManager implements TaskManager {
                 } else if (subTask.getEndTime().isAfter(latestEndTime)) {
                     latestEndTime = subTask.getEndTime();
                 }
-                epicDuration = Duration.between(earliestStartTime, latestEndTime);
             }
+            epicDuration = Duration.between(earliestStartTime, latestEndTime);
+            epic.setStartTime(earliestStartTime);
+            epic.setEndTime(latestEndTime);
+        } else {
+            epic.setStartTime(LocalDateTime.MAX);
+            epic.setEndTime(LocalDateTime.MAX);
         }
         epic.setDuration(epicDuration);
     }
