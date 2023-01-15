@@ -83,21 +83,25 @@ public class Task {
         Task task = (Task) o;
         return id == task.id && Objects.equals(name, task.name)
                 && Objects.equals(description, task.description)
-                && Objects.equals(status, task.status);
+                && status == task.status &&
+                Objects.equals(duration, task.duration)
+                && Objects.equals(startTime, task.startTime);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, description, id, status);
+        return Objects.hash(name, description, id, status, duration, startTime);
     }
 
     @Override
     public String toString() {
-        return "Tasks.Task{" +
+        return "Task{" +
                 "name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", id=" + id +
-                ", status='" + status + '\'' +
+                ", status=" + status +
+                ", duration=" + duration +
+                ", startTime=" + startTime +
                 '}';
     }
 }

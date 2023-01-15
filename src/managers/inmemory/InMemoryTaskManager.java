@@ -10,10 +10,7 @@ import tasks.Task;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Дарья Толстоногова
@@ -22,21 +19,24 @@ import java.util.List;
 public class InMemoryTaskManager implements TaskManager {
 
     protected Comparator<Task> comparator = (o1, o2) -> {
-        if (o1.getStartTime().isBefore(o2.getStartTime())) {
+        if (o1.getStartTime().isAfter(o2.getStartTime())) {
             return 1;
-        } else if (o1.getStartTime().equals(o2.getStartTime())) {
-            return 0;
-        } else {
-            return -1;
         }
+        return -1;
     };
 
     protected int nextId = 1;
     protected final HashMap<Integer, Task> tasksMap = new HashMap<>();
     protected final HashMap<Integer, Epic> epicTasksMap = new HashMap<>();
     protected final HashMap<Integer, SubTask> subTasksMap = new HashMap<>();
+    protected final Set<Task> anyTypeTasks = new TreeSet<>(comparator);
 
     protected HistoryManager historyManager = Managers.getDefaultHistory();
+
+    @Override
+    public Set<Task> getPrioritizedTasks() {
+        return anyTypeTasks;
+    }
 
     @Override
     public List<Task> getHistory() {
@@ -47,12 +47,14 @@ public class InMemoryTaskManager implements TaskManager {
     public void addTask(Task task) {
         task.setId(nextId++);
         tasksMap.put(task.getId(), task);
+        anyTypeTasks.add(task);
     }
 
     @Override
     public void addEpic(Epic epic) {
         epic.setId(nextId++);
         epicTasksMap.put(epic.getId(), epic);
+        anyTypeTasks.add(epic);
         syncEpic(epic);
         setEpicDuration(epic);
     }
@@ -61,6 +63,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void addSubTask(SubTask task) {
         task.setId(nextId++);
         subTasksMap.put(task.getId(), task);
+        anyTypeTasks.add(task);
     }
 
     /**

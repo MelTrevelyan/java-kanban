@@ -39,8 +39,9 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         SubTask stask2 = new SubTask("Сгруппировать вещи", "по коробкам", 0, Status.DONE,
                 300, LocalDateTime.parse("11.02.2023;21:30", FORMATTER), 0);
         Epic epic1 = new Epic("Переезд", "В Казань", 0, Status.DONE, 0,
-                null);
-        Epic epic2 = new Epic("name1", "description1", 0, Status.DONE, 500, null);
+                LocalDateTime.parse("15.02.2023;14:00", FORMATTER));
+        Epic epic2 = new Epic("name1", "description1", 0, Status.DONE, 500,
+                LocalDateTime.MAX);
 
         manager.addSubTask(stask1);
         manager.getSubTask(1);
@@ -63,7 +64,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         manager.getTask(4);
         manager.addEpic(epic2);
 
-        System.out.println(manager.getHistory());
+        System.out.println(manager.getPrioritizedTasks());
     }
 
     /**
@@ -71,11 +72,8 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
      */
     private void save() {
         try (Writer fileWriter = new FileWriter(saving)) {
-            List<Task> allTypesTasks = new ArrayList<>(tasksMap.values());
-            allTypesTasks.addAll(epicTasksMap.values());
-            allTypesTasks.addAll(subTasksMap.values());
             fileWriter.write("id,type,name,status,description,minutes,startTime,epic\n");
-            for (Task task : allTypesTasks) {
+            for (Task task : anyTypeTasks) {
                 fileWriter.write(CsvConverter.toString(task) + "\n");
             }
             fileWriter.write("\n" + CsvConverter.historyToString(historyManager));
@@ -243,6 +241,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         } else {
             tasksMap.put(task.getId(), task);
         }
+        anyTypeTasks.add(task);
     }
 
     private void uploadHistory(List<Integer> ids) {
