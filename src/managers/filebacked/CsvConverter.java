@@ -6,6 +6,7 @@ import tasks.Status;
 import tasks.SubTask;
 import tasks.Task;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -28,13 +29,15 @@ public class CsvConverter {
             status = Status.DONE;
         }
         if (split[1].equals("SUBTASK")) {
-            return new SubTask(split[2], split[4], Integer.parseInt(split[0]), status, Long.parseLong(split[5]),
+            return new SubTask(split[2], split[4], Integer.parseInt(split[0]), status,
+                    Duration.ofMinutes(Long.parseLong(split[5])),
                     LocalDateTime.parse(split[6], FORMATTER), Integer.parseInt(split[7]));
         } else if (split[1].equals("EPIC")) {
-            return new Epic(split[2], split[4], Integer.parseInt(split[0]), status, Long.parseLong(split[5]),
-                    LocalDateTime.parse(split[6], FORMATTER));
+            return new Epic(split[2], split[4], Integer.parseInt(split[0]), status,
+                    Duration.ofMinutes(Long.parseLong(split[5])), LocalDateTime.parse(split[6], FORMATTER));
         }
-        return new Task(split[2], split[4], Integer.parseInt(split[0]), status, Long.parseLong(split[5]),
+        return new Task(split[2], split[4], Integer.parseInt(split[0]), status,
+                Duration.ofMinutes(Long.parseLong(split[5])),
                 LocalDateTime.parse(split[6], FORMATTER));
     }
 

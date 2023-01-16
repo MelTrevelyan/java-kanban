@@ -1,5 +1,6 @@
 package managers.inmemory;
 
+import exception.ManagerValidateException;
 import managers.HistoryManager;
 import managers.Managers;
 import managers.TaskManager;
@@ -18,17 +19,16 @@ import java.util.*;
  */
 public class InMemoryTaskManager implements TaskManager {
 
+    protected int nextId = 1;
+    protected final HashMap<Integer, Task> tasksMap = new HashMap<>();
+    protected final HashMap<Integer, Epic> epicTasksMap = new HashMap<>();
+    protected final HashMap<Integer, SubTask> subTasksMap = new HashMap<>();
     protected Comparator<Task> comparator = (o1, o2) -> {
         if (o1.getStartTime().isAfter(o2.getStartTime())) {
             return 1;
         }
         return -1;
     };
-
-    protected int nextId = 1;
-    protected final HashMap<Integer, Task> tasksMap = new HashMap<>();
-    protected final HashMap<Integer, Epic> epicTasksMap = new HashMap<>();
-    protected final HashMap<Integer, SubTask> subTasksMap = new HashMap<>();
     protected final Set<Task> anyTypeTasks = new TreeSet<>(comparator);
 
     protected HistoryManager historyManager = Managers.getDefaultHistory();
@@ -46,6 +46,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void addTask(Task task) {
         task.setId(nextId++);
+        validate(task);
         tasksMap.put(task.getId(), task);
         anyTypeTasks.add(task);
     }
@@ -62,6 +63,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void addSubTask(SubTask task) {
         task.setId(nextId++);
+        validate(task);
         subTasksMap.put(task.getId(), task);
         anyTypeTasks.add(task);
     }
@@ -128,6 +130,22 @@ public class InMemoryTaskManager implements TaskManager {
         epic.setDuration(epicDuration);
     }
 
+    private void validate(Task task) {
+        List<Task> tasks = new ArrayList<>(getPrioritizedTasks());
+        if (!tasks.isEmpty()) {
+            for (Task listTask : tasks) {
+                if (task.getStartTime().isBefore(listTask.getStartTime())
+                        && task.getEndTime().isBefore(listTask.getStartTime())
+                        || task.getStartTime().isAfter(listTask.getEndTime())
+                        && task.getEndTime().isAfter(listTask.getEndTime())) {
+                } else {
+                    throw new ManagerValidateException("У задач с id" + task.getId() + " и " + listTask.getId() +
+                            "пересекается время выполнения");
+                }
+            }
+        }
+    }
+
     @Override
     public void updateEpic(Epic epic) {
         Epic oldEpic = epicTasksMap.get(epic.getId());
@@ -135,19 +153,25 @@ public class InMemoryTaskManager implements TaskManager {
         epicTasksMap.put(epic.getId(), epic);
         epic.setSubTaskIds(oldEpicSubsIds);
         syncEpic(epic);
+        setEpicDuration(epic);
     }
 
     @Override
     public void updateSubTask(SubTask task) {
         SubTask oldSubTask = subTasksMap.get(task.getId());
         task.setEpicId(oldSubTask.getEpicId());
+        validate(task);
         subTasksMap.put(task.getId(), task);
         Epic epic = epicTasksMap.get(task.getEpicId());
         syncEpic(epic);
+        if (oldSubTask.getEpicId() != 0) {
+            setEpicDuration(epic);
+        }
     }
 
     @Override
     public void updateTask(Task task) {
+        validate(task);
         tasksMap.put(task.getId(), task);
     }
 
@@ -257,14 +281,5 @@ public class InMemoryTaskManager implements TaskManager {
         for (int taskId : epicTasksMap.get(epicId).getSubTaskIds()) {
             System.out.println(subTasksMap.get(taskId).getName());
         }
-    }
-
-    @Override
-    public String toString() {
-        return "Managers.Manager{" +
-                "tasksMap=" + tasksMap +
-                ", epicTasksMap=" + epicTasksMap +
-                ", subTasksMap=" + subTasksMap +
-                '}';
     }
 }

@@ -15,12 +15,12 @@ public class Task {
 
     public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy;HH:mm");
 
-    public Task(String name, String description, int id, Status status, long minutes, LocalDateTime startTime) {
+    public Task(String name, String description, int id, Status status, Duration duration, LocalDateTime startTime) {
         this.name = name;
         this.description = description;
         this.id = id;
         this.status = status;
-        this.duration = Duration.ofMinutes(minutes);
+        this.duration = duration;
         this.startTime = startTime;
     }
 
@@ -100,8 +100,8 @@ public class Task {
                 ", description='" + description + '\'' +
                 ", id=" + id +
                 ", status=" + status +
-                ", duration=" + duration +
-                ", startTime=" + startTime +
+                ", duration=" + duration.toMinutes() + "мин" +
+                ", startTime=" + startTime.format(FORMATTER) +
                 '}';
     }
 }
