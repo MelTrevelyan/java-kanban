@@ -41,13 +41,11 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 Duration.ofMinutes(300), LocalDateTime.parse("11.02.2023;21:00", FORMATTER), 0);
         Epic epic1 = new Epic("Переезд", "В Казань", 0, Status.DONE, Duration.ofMinutes(0),
                 LocalDateTime.parse("15.02.2023;14:00", FORMATTER));
-        Epic epic2 = new Epic("name1", "description1", 0, Status.DONE, Duration.ofMinutes(500),
+        Epic epic2 = new Epic("name1", "description1", 3, Status.DONE, Duration.ofMinutes(500),
                 LocalDateTime.MAX);
 
         manager.addSubTask(stask1);
         manager.getSubTask(1);
-
-        manager = loadFromFile(save);
 
         manager.addSubTask(stask2);
         epic1.addSubTaskId(stask1.getId());
@@ -58,12 +56,12 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         manager.getEpic(3);
         manager.getSubTask(1);
 
-        manager = loadFromFile(save);
-
         manager.addTask(task1);
         manager.addTask(task2);
         manager.getTask(4);
         manager.addEpic(epic2);
+
+        manager.removeTask(5);
 
         System.out.println(manager.getPrioritizedTasks());
     }
@@ -73,7 +71,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
      */
     private void save() {
         try (Writer fileWriter = new FileWriter(saving)) {
-            fileWriter.write("id,type,name,status,description,minutes,startTime,epic\n");
+            fileWriter.write("id,type,name,status,description,minutes,startTime,epic(subTasks)\n");
             for (Task task : anyTypeTasks) {
                 fileWriter.write(CsvConverter.toString(task) + "\n");
             }

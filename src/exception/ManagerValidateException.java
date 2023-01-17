@@ -2,6 +2,6 @@ package exception;
 
 public class ManagerValidateException extends RuntimeException {
 
-    public ManagerValidateException(String message) {
+    public ManagerValidateException() {
     }
 }

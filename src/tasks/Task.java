@@ -77,23 +77,6 @@ public class Task {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Task task = (Task) o;
-        return id == task.id && Objects.equals(name, task.name)
-                && Objects.equals(description, task.description)
-                && status == task.status &&
-                Objects.equals(duration, task.duration)
-                && Objects.equals(startTime, task.startTime);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, description, id, status, duration, startTime);
-    }
-
-    @Override
     public String toString() {
         return "Task{" +
                 "name='" + name + '\'' +
@@ -103,5 +86,21 @@ public class Task {
                 ", duration=" + duration.toMinutes() + "мин" +
                 ", startTime=" + startTime.format(FORMATTER) +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Task task = (Task) o;
+        return id == task.id && Objects.equals(name, task.name)
+                && Objects.equals(description, task.description)
+                && status == task.status && Objects.equals(duration, task.duration)
+                && Objects.equals(startTime, task.startTime);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, description, id, status, duration, startTime);
     }
 }

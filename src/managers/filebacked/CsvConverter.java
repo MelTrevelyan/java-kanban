@@ -8,6 +8,7 @@ import tasks.Task;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static tasks.Task.FORMATTER;
@@ -33,8 +34,15 @@ public class CsvConverter {
                     Duration.ofMinutes(Long.parseLong(split[5])),
                     LocalDateTime.parse(split[6], FORMATTER), Integer.parseInt(split[7]));
         } else if (split[1].equals("EPIC")) {
-            return new Epic(split[2], split[4], Integer.parseInt(split[0]), status,
+            String[] subsStringId = split[7].split("/");
+            ArrayList<Integer> subsId = new ArrayList<>();
+            for (String id : subsStringId) {
+                subsId.add(Integer.parseInt(id));
+            }
+            Epic epic = new Epic(split[2], split[4], Integer.parseInt(split[0]), status,
                     Duration.ofMinutes(Long.parseLong(split[5])), LocalDateTime.parse(split[6], FORMATTER));
+            epic.setSubTaskIds(subsId);
+            return epic;
         }
         return new Task(split[2], split[4], Integer.parseInt(split[0]), status,
                 Duration.ofMinutes(Long.parseLong(split[5])),
@@ -62,8 +70,13 @@ public class CsvConverter {
     public static String toString(Task task) {
         TaskType taskType;
         String epicId = "";
+        StringBuilder sb = new StringBuilder();
         if (task instanceof Epic) {
             taskType = TaskType.EPIC;
+            for (Integer id : ((Epic) task).getSubTaskIds()) {
+                sb.append(id + "/");
+            }
+            epicId = sb.toString();
         } else if (task instanceof SubTask) {
             taskType = TaskType.SUBTASK;
             epicId += ((SubTask) task).getEpicId();
