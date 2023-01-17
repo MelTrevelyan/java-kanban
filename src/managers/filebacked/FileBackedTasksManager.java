@@ -35,6 +35,8 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 LocalDateTime.parse("13.01.2023;14:30", FORMATTER));
         Task task2 = new Task("Надуть шарики", "Чтобы украсить квартиру", 0, Status.DONE,
                 Duration.ofMinutes(200), LocalDateTime.parse("10.02.2023;10:00", FORMATTER));
+        Task task3 = new Task("Приготовить пирог", "на ужин", 4, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("16.02.2023;17:00", FORMATTER));
         SubTask stask1 = new SubTask("Убрать документы", "в папки", 0, Status.NEW,
                 Duration.ofMinutes(20), LocalDateTime.parse("11.02.2023;15:00", FORMATTER), 0);
         SubTask stask2 = new SubTask("Сгруппировать вещи", "по коробкам", 0, Status.DONE,
@@ -59,9 +61,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         manager.addTask(task1);
         manager.addTask(task2);
         manager.getTask(4);
-        manager.addEpic(epic2);
-
-        manager.removeTask(5);
 
         System.out.println(manager.getPrioritizedTasks());
     }
