@@ -35,6 +35,8 @@ abstract class TaskManagerTest<T extends TaskManager> {
         assertNotNull(tasks, "Задачи на возвращаются.");
         assertEquals(1, tasks.size(), "Неверное количество задач.");
         assertEquals(task, tasks.get(0), "Задачи не совпадают.");
+        assertEquals(taskManager.getPrioritizedTasks(), tasks, "Задачи из списка по приоритету добавлены" +
+                "неправильно");
     }
 
     public void addSubTask() {
@@ -60,6 +62,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         assertEquals(1, subTasks.size(), "Неверное количество задач.");
         assertEquals(stask1, subTasks.get(0), "Задачи не совпадают.");
         assertEquals(epicId, savedSubTask.getEpicId(), "У подзадачи неправильно сохранился id эпика");
+        assertEquals(2, taskManager.getPrioritizedTasks().size());
     }
 
     public void addEpic() {
@@ -135,6 +138,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
         final Task savedTask = taskManager.getTask(taskId);
 
+        assertNotNull(taskManager.getAllTasks(), "Задачи на возвращаются.");
         assertNotEquals(task1, savedTask, "Старая задача не заменилась на новую");
     }
 

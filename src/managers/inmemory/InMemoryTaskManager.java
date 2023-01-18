@@ -57,8 +57,8 @@ public class InMemoryTaskManager implements TaskManager {
     public void addEpic(Epic epic) {
         epic.setId(nextId++);
         epicTasksMap.put(epic.getId(), epic);
-        anyTypeTasks.add(epic);
         syncEpic(epic);
+        anyTypeTasks.add(epic);
     }
 
     @Override
@@ -154,9 +154,9 @@ public class InMemoryTaskManager implements TaskManager {
         ArrayList<Integer> oldEpicSubsIds = oldEpic.getSubTaskIds();
         epic.setSubTaskIds(oldEpicSubsIds);
         syncEpic(epic);
+        epicTasksMap.put(epic.getId(), epic);
         anyTypeTasks.remove(oldEpic);
         anyTypeTasks.add(epic);
-        epicTasksMap.put(epic.getId(), epic);
     }
 
     @Override
@@ -164,13 +164,13 @@ public class InMemoryTaskManager implements TaskManager {
         SubTask oldSubTask = subTasksMap.get(task.getId());
         task.setEpicId(oldSubTask.getEpicId());
         validate(task);
+        subTasksMap.put(task.getId(), task);
         if (oldSubTask.getEpicId() != 0) {
             Epic epic = epicTasksMap.get(task.getEpicId());
             syncEpic(epic);
         }
         anyTypeTasks.remove(oldSubTask);
         anyTypeTasks.add(task);
-        subTasksMap.put(task.getId(), task);
     }
 
     @Override
@@ -228,6 +228,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void removeAllTasks() {
         for (int id : tasksMap.keySet()) {
             historyManager.remove(id);
+            anyTypeTasks.remove(tasksMap.get(id));
         }
         tasksMap.clear();
     }
@@ -236,10 +237,12 @@ public class InMemoryTaskManager implements TaskManager {
     public void removeAllEpics() {
         for (int epicId : epicTasksMap.keySet()) {
             historyManager.remove(epicId);
+            anyTypeTasks.remove(epicTasksMap.get(epicId));
         }
         epicTasksMap.clear();
         for (int subId : subTasksMap.keySet()) {
             historyManager.remove(subId);
+            anyTypeTasks.remove(subTasksMap.get(subId));
         }
         removeAllSubTasks();
     }
