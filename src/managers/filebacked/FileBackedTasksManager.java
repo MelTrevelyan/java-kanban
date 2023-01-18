@@ -66,7 +66,9 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         manager.addTask(task2);
         manager.getTask(4);
 
-        manager.updateEpic(epic2);
+        manager.addEpic(epic2);
+
+        manager = loadFromFile(save);
 
         System.out.println(manager.getPrioritizedTasks());
     }
@@ -218,17 +220,19 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 strings.add(line);
             }
             stringsSize = strings.size();
-            if (strings.get(stringsSize - 1).isEmpty()) {
-                manager.nextId = stringsSize - 1;
-                for (int i = 1; i < stringsSize - 1; i++) {
-                    manager.uploadTask(strings.get(i));
+            if (stringsSize != 0) {
+                if (strings.get(stringsSize - 1).isEmpty()) {
+                    manager.nextId = stringsSize - 1;
+                    for (int i = 1; i < stringsSize - 1; i++) {
+                        manager.uploadTask(strings.get(i));
+                    }
+                } else {
+                    manager.nextId = stringsSize - 2;
+                    for (int i = 1; i < stringsSize - 2; i++) {
+                        manager.uploadTask(strings.get(i));
+                    }
+                    manager.uploadHistory(CsvConverter.historyFromString(strings.get(stringsSize - 1)));
                 }
-            } else {
-                manager.nextId = stringsSize - 2;
-                for (int i = 1; i < stringsSize - 2; i++) {
-                    manager.uploadTask(strings.get(i));
-                }
-                manager.uploadHistory(CsvConverter.historyFromString(strings.get(stringsSize - 1)));
             }
         } catch (IOException e) {
             throw new ManagerSaveException();

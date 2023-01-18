@@ -21,6 +21,7 @@ public class CsvConverter {
 
     public static Task fromString(String value) {
         Status status;
+        ArrayList<Integer> subsId = new ArrayList<>();
         String[] split = value.split(",");
         if (split[3].equals("NEW")) {
             status = Status.NEW;
@@ -34,10 +35,11 @@ public class CsvConverter {
                     Duration.ofMinutes(Long.parseLong(split[5])),
                     LocalDateTime.parse(split[6], FORMATTER), Integer.parseInt(split[7]));
         } else if (split[1].equals("EPIC")) {
-            String[] subsStringId = split[7].split("/");
-            ArrayList<Integer> subsId = new ArrayList<>();
-            for (String id : subsStringId) {
-                subsId.add(Integer.parseInt(id));
+            if (split.length > 7) {
+                String[] subsStringId = split[7].split("/");
+                for (String id : subsStringId) {
+                    subsId.add(Integer.parseInt(id));
+                }
             }
             Epic epic = new Epic(split[2], split[4], Integer.parseInt(split[0]), status,
                     Duration.ofMinutes(Long.parseLong(split[5])), LocalDateTime.parse(split[6], FORMATTER));

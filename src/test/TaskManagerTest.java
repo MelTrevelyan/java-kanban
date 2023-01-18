@@ -347,7 +347,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     public void removeAllSubTasksTest() {
         SubTask subTask1 = new SubTask("name1", "description1", 0, Status.NEW,
-                Duration.ofMinutes(60), LocalDateTime.parse("02.01.2023;12:00", FORMATTER),0);
+                Duration.ofMinutes(60), LocalDateTime.parse("02.01.2023;12:00", FORMATTER), 0);
         SubTask subTask2 = new SubTask("name2", "description2", 0, Status.NEW,
                 Duration.ofMinutes(60), LocalDateTime.parse("03.01.2023;12:00", FORMATTER), 0);
         Epic epic = new Epic("name", "description", 0, Status.NEW, Duration.ZERO, LocalDateTime.MAX);
@@ -397,7 +397,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     public void removeEpicTest() {
         Epic epic = new Epic("name", "description", 0, Status.NEW, Duration.ZERO, LocalDateTime.MAX);
         SubTask subTask1 = new SubTask("name1", "description1", 0, Status.NEW,
-                Duration.ofMinutes(60), LocalDateTime.parse("02.01.2023;12:00", FORMATTER),0);
+                Duration.ofMinutes(60), LocalDateTime.parse("02.01.2023;12:00", FORMATTER), 0);
 
         taskManager.addSubTask(subTask1);
         epic.addSubTaskId(subTask1.getId());
@@ -422,7 +422,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     public void removeSubTaskTest() {
         SubTask subTask1 = new SubTask("name1", "description1", 0, Status.NEW,
-                Duration.ofMinutes(60), LocalDateTime.parse("02.01.2023;12:00", FORMATTER),0);
+                Duration.ofMinutes(60), LocalDateTime.parse("02.01.2023;12:00", FORMATTER), 0);
         SubTask subTask2 = new SubTask("name2", "description2", 0, Status.NEW,
                 Duration.ofMinutes(60), LocalDateTime.parse("03.01.2023;12:00", FORMATTER), 0);
         Epic epic = new Epic("name", "description", 0, Status.NEW, Duration.ZERO, LocalDateTime.MAX);
@@ -446,7 +446,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     public void getSubTasksOfEpicTest() {
         SubTask subTask1 = new SubTask("name1", "description1", 0, Status.NEW,
-                Duration.ofMinutes(60), LocalDateTime.parse("02.01.2023;12:00", FORMATTER),0);
+                Duration.ofMinutes(60), LocalDateTime.parse("02.01.2023;12:00", FORMATTER), 0);
         SubTask subTask2 = new SubTask("name2", "description2", 0, Status.NEW,
                 Duration.ofMinutes(60), LocalDateTime.parse("03.01.2023;12:00", FORMATTER), 0);
         Epic epic = new Epic("name", "description", 0, Status.NEW, Duration.ZERO, LocalDateTime.MAX);
@@ -464,7 +464,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     public void getHistoryTest() {
         SubTask subTask1 = new SubTask("name1", "description1", 0, Status.NEW,
-                Duration.ofMinutes(60), LocalDateTime.parse("02.01.2023;12:00", FORMATTER),0);
+                Duration.ofMinutes(60), LocalDateTime.parse("02.01.2023;12:00", FORMATTER), 0);
         SubTask subTask2 = new SubTask("name2", "description2", 0, Status.NEW,
                 Duration.ofMinutes(60), LocalDateTime.parse("03.01.2023;12:00", FORMATTER), 0);
         Epic epic = new Epic("name3", "description3", 0, Status.NEW, Duration.ZERO,
@@ -496,7 +496,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     public void getPrioritizedTasksTest() {
         SubTask subTask1 = new SubTask("name1", "description1", 0, Status.NEW,
-                Duration.ofMinutes(60), LocalDateTime.parse("02.01.2023;12:00", FORMATTER),0);
+                Duration.ofMinutes(60), LocalDateTime.parse("02.01.2023;12:00", FORMATTER), 0);
         SubTask subTask2 = new SubTask("name2", "description2", 0, Status.NEW,
                 Duration.ofMinutes(60), LocalDateTime.parse("03.01.2023;12:00", FORMATTER), 0);
         Epic epic = new Epic("name3", "description3", 0, Status.NEW, Duration.ZERO,
@@ -521,7 +521,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     public void taskValidationTest() {
         SubTask subTask1 = new SubTask("name1", "description1", 0, Status.NEW,
-                Duration.ofMinutes(60), LocalDateTime.parse("02.01.2023;12:00", FORMATTER),0);
+                Duration.ofMinutes(60), LocalDateTime.parse("02.01.2023;12:00", FORMATTER), 0);
         SubTask subTask2 = new SubTask("name2", "description2", 0, Status.NEW,
                 Duration.ofMinutes(60), LocalDateTime.parse("02.01.2023;12:00", FORMATTER), 0);
         Task task1 = new Task("name3", "description3", 0, Status.NEW, Duration.ofMinutes(60),
@@ -543,7 +543,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     public void epicStatusShouldBeNewWithEmptySubtasks() {
-        Epic epic = new Epic("name1", "description1", 0, Status.DONE,  Duration.ZERO,
+        Epic epic = new Epic("name1", "description1", 0, Status.DONE, Duration.ZERO,
                 LocalDateTime.MAX);
         taskManager.addEpic(epic);
         assertEquals(Status.NEW, taskManager.getEpic(1).getStatus(), "Статус определяется" +
@@ -552,10 +552,10 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     public void epicStatusShouldBeNew() {
         SubTask stask1 = new SubTask("name1", "description1", 0, Status.NEW, Duration.ofMinutes(60),
-                LocalDateTime.parse("02.01.2023;12:00", FORMATTER),0);
+                LocalDateTime.parse("02.01.2023;12:00", FORMATTER), 0);
         SubTask stask2 = new SubTask("name2", "description2", 0, Status.NEW, Duration.ofMinutes(60),
                 LocalDateTime.parse("03.01.2023;12:00", FORMATTER), 0);
-        Epic epic = new Epic("name3", "description3", 0, Status.DONE,  Duration.ZERO,
+        Epic epic = new Epic("name3", "description3", 0, Status.DONE, Duration.ZERO,
                 LocalDateTime.MAX);
 
         taskManager.addSubTask(stask1);
@@ -568,10 +568,10 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     public void epicStatusShouldBeDone() {
         SubTask stask1 = new SubTask("name1", "description1", 0, Status.DONE, Duration.ofMinutes(60),
-                LocalDateTime.parse("02.01.2023;12:00", FORMATTER),0);
+                LocalDateTime.parse("02.01.2023;12:00", FORMATTER), 0);
         SubTask stask2 = new SubTask("name2", "description2", 0, Status.DONE, Duration.ofMinutes(60),
                 LocalDateTime.parse("03.01.2023;12:00", FORMATTER), 0);
-        Epic epic = new Epic("name3", "description3", 0, Status.NEW,  Duration.ZERO,
+        Epic epic = new Epic("name3", "description3", 0, Status.NEW, Duration.ZERO,
                 LocalDateTime.MAX);
 
         taskManager.addSubTask(stask1);
@@ -585,10 +585,10 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     public void epicStatusShouldBeInProgressWithNewAndDoneSubtasks() {
         SubTask stask1 = new SubTask("name1", "description1", 0, Status.DONE, Duration.ofMinutes(60),
-                LocalDateTime.parse("02.01.2023;12:00", FORMATTER),0);
+                LocalDateTime.parse("02.01.2023;12:00", FORMATTER), 0);
         SubTask stask2 = new SubTask("name2", "description2", 0, Status.NEW, Duration.ofMinutes(60),
                 LocalDateTime.parse("03.01.2023;12:00", FORMATTER), 0);
-        Epic epic = new Epic("name3", "description3", 0, Status.NEW,  Duration.ZERO,
+        Epic epic = new Epic("name3", "description3", 0, Status.NEW, Duration.ZERO,
                 LocalDateTime.MAX);
 
         taskManager.addSubTask(stask1);
@@ -602,10 +602,10 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     public void epicStatusShouldBeInProgressWithInProgressSubtasks() {
         SubTask stask1 = new SubTask("name1", "description1", 0, Status.IN_PROGRESS,
-                Duration.ofMinutes(60), LocalDateTime.parse("02.01.2023;12:00", FORMATTER),0);
+                Duration.ofMinutes(60), LocalDateTime.parse("02.01.2023;12:00", FORMATTER), 0);
         SubTask stask2 = new SubTask("name2", "description2", 0, Status.IN_PROGRESS,
                 Duration.ofMinutes(60), LocalDateTime.parse("03.01.2023;12:00", FORMATTER), 0);
-        Epic epic = new Epic("name3", "description3", 0, Status.NEW,  Duration.ZERO,
+        Epic epic = new Epic("name3", "description3", 0, Status.NEW, Duration.ZERO,
                 LocalDateTime.MAX);
 
         taskManager.addSubTask(stask1);
