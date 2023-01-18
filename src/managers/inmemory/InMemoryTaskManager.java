@@ -36,8 +36,8 @@ public class InMemoryTaskManager implements TaskManager {
     protected HistoryManager historyManager = Managers.getDefaultHistory();
 
     @Override
-    public Set<Task> getPrioritizedTasks() {
-        return anyTypeTasks;
+    public List<Task> getPrioritizedTasks() {
+        return List.copyOf(anyTypeTasks);
     }
 
     @Override
@@ -56,8 +56,8 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void addEpic(Epic epic) {
         epic.setId(nextId++);
-        epicTasksMap.put(epic.getId(), epic);
         syncEpic(epic);
+        epicTasksMap.put(epic.getId(), epic);
         anyTypeTasks.add(epic);
     }
 
@@ -252,6 +252,7 @@ public class InMemoryTaskManager implements TaskManager {
         ArrayList<Integer> emptyList = new ArrayList<>(0);
         for (int subId : subTasksMap.keySet()) {
             historyManager.remove(subId);
+            anyTypeTasks.remove(subTasksMap.get(subId));
         }
         subTasksMap.clear();
         for (Epic epic : epicTasksMap.values()) {

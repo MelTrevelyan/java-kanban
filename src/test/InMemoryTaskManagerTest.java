@@ -12,83 +12,137 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
     }
 
     @Test
-    public void addTask() {
-        super.addTask();
+    public void addTaskTest() {
+        super.addTaskTest();
     }
 
     @Test
-    public void addSubTask() {
-        super.addSubTask();
+    public void addSubTaskTest() {
+        super.addSubTaskTest();
     }
 
     @Test
-    public void addEpic() {
-        super.addEpic();
+    public void addEpicTest() {
+        super.addEpicTest();
     }
 
     @Test
-    public void updateTask() {
-        super.updateTask();
+    public void updateTaskTest() {
+        super.updateTaskTest();
     }
 
     @Test
-    public void updateSubTask() {
-        super.updateSubTask();
+    public void updateSubTaskTest() {
+        super.updateSubTaskTest();
     }
 
     @Test
-    public void updateEpic() {
-        super.updateEpic();
+    public void updateEpicTest() {
+        super.updateEpicTest();
     }
 
     @Test
-    public void getAllTasks() {
-        super.getAllTasks();
+    public void getAllTasksTest() {
+        super.getAllTasksTest();
     }
 
     @Test
-    public void getAllSubtasks() {
-        super.getAllSubTasks();
+    public void getAllSubtasksTest() {
+        super.getAllSubTasksTest();
     }
 
     @Test
-    public void getAllEpics() {
-        super.getAllEpics();
+    public void getAllEpicsTest() {
+        super.getAllEpicsTest();
     }
 
     @Test
-    public void getTask() {
-        super.getTask();
+    public void getTaskTest() {
+        super.getTaskTest();
     }
 
     @Test
-    public void getEpic() {
-        super.getEpic();
+    public void getEpicTest() {
+        super.getEpicTest();
     }
 
     @Test
-    public void getSubTask() {
-        super.getSubTask();
+    public void getSubTaskTest() {
+        super.getSubTaskTest();
     }
 
     @Test
-    public void removeAllTasks() {
-        super.removeAllTasks();
+    public void removeAllTasksTest() {
+        super.removeAllTasksTest();
     }
 
     @Test
-    public void removeAllEpics() {
-        super.removeAllEpics();
+    public void removeAllEpicsTest() {
+        super.removeAllEpicsTest();
     }
 
     @Test
-    public void removeAllSubTasks() {
-        super.removeAllSubTasks();
+    public void removeAllSubTasksTest() {
+        super.removeAllSubTasksTest();
     }
 
     @Test
-    public void removeTask() {
-        super.removeTask();
+    public void removeTaskTest() {
+        super.removeTaskTest();
     }
 
+    @Test
+    public void removeEpicTest() {
+        super.removeEpicTest();
+    }
+
+    @Test
+    public void removeSubTaskTest() {
+        super.removeSubTaskTest();
+    }
+
+    @Test
+    public void getSubTasksOfEpicTest() {
+        super.getSubTasksOfEpicTest();
+    }
+
+    @Test
+    public void getHistoryTest() {
+        super.getHistoryTest();
+    }
+
+    @Test
+    public void getPrioritizedTasksTest() {
+        super.getPrioritizedTasksTest();
+    }
+
+    @Test
+    public void taskValidationTest() {
+        super.taskValidationTest();
+    }
+
+    @Test
+    public void epicStatusShouldBeNewWithEmptySubtasks() {
+        super.epicStatusShouldBeNewWithEmptySubtasks();
+    }
+
+    @Test
+    public void epicStatusShouldBeNew() {
+        super.epicStatusShouldBeNew();
+    }
+
+    @Test
+    public void epicStatusShouldBeDone() {
+        super.epicStatusShouldBeDone();
+    }
+
+    @Test
+    public void epicStatusShouldBeInProgressWithNewAndDoneSubtasks() {
+        super.epicStatusShouldBeInProgressWithNewAndDoneSubtasks();
+    }
+
+    @Test
+    public void epicStatusShouldBeInProgressWithInProgressSubtasks() {
+        super.epicStatusShouldBeInProgressWithInProgressSubtasks();
+    }
 }

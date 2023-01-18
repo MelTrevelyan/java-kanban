@@ -1,5 +1,6 @@
 package test;
 
+import exception.ManagerValidateException;
 import managers.TaskManager;
 import tasks.Epic;
 import tasks.Status;
@@ -19,7 +20,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     protected T taskManager;
 
-    public void addTask() {
+    public void addTaskTest() {
         Task task = new Task("Test addNewTask", "Test addNewTask description", 0, Status.NEW,
                 Duration.ofMinutes(60), LocalDateTime.parse("01.01.2023;12:00", FORMATTER));
         taskManager.addTask(task);
@@ -37,19 +38,18 @@ abstract class TaskManagerTest<T extends TaskManager> {
         assertEquals(task, tasks.get(0), "Задачи не совпадают.");
         assertEquals(taskManager.getPrioritizedTasks(), tasks, "Задачи из списка по приоритету добавлены" +
                 "неправильно");
+        assertThrows(
+                NullPointerException.class,
+                () -> taskManager.getTask(0)
+        );
     }
 
-    public void addSubTask() {
+    public void addSubTaskTest() {
         SubTask stask1 = new SubTask("Убрать документы", "в папки", 0, Status.NEW,
                 Duration.ofMinutes(20), LocalDateTime.parse("11.02.2023;15:00", FORMATTER), 0);
-        Epic epic = new Epic("Test Test addNewSubTask", "Test addNewSubTask description",
-                0, Status.NEW, Duration.ZERO, LocalDateTime.MIN);
 
         taskManager.addSubTask(stask1);
         final int subTaskId = stask1.getId();
-        epic.addSubTaskId(subTaskId);
-        taskManager.addEpic(epic);
-        final int epicId = epic.getId();
 
         final SubTask savedSubTask = taskManager.getSubTask(subTaskId);
 
@@ -61,11 +61,14 @@ abstract class TaskManagerTest<T extends TaskManager> {
         assertNotNull(subTasks, "Задачи на возвращаются.");
         assertEquals(1, subTasks.size(), "Неверное количество задач.");
         assertEquals(stask1, subTasks.get(0), "Задачи не совпадают.");
-        assertEquals(epicId, savedSubTask.getEpicId(), "У подзадачи неправильно сохранился id эпика");
-        assertEquals(2, taskManager.getPrioritizedTasks().size());
+        assertEquals(1, taskManager.getPrioritizedTasks().size());
+        assertThrows(
+                NullPointerException.class,
+                () -> taskManager.getSubTask(0)
+        );
     }
 
-    public void addEpic() {
+    public void addEpicTest() {
         SubTask subTask1 = new SubTask("Test addNewEpic", "Test addNewEpic description", 0,
                 Status.NEW, Duration.ofMinutes(100), LocalDateTime.parse("02.01.2023;10:00", FORMATTER), 0);
         SubTask subTask2 = new SubTask("name", "description", 0, Status.NEW, Duration.ofMinutes(90),
@@ -97,11 +100,16 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
         assertNotNull(epics, "Задачи на возвращаются.");
         assertEquals(1, epics.size(), "Неверное количество задач.");
-        assertEquals(epic, epics.get(0), "Задачи не совпадают.");
+        assertEquals(epic, savedEpic, "Задачи не совпадают.");
         assertEquals(subTaskIds, savedEpic.getSubTaskIds(), "Эпик неправильно сохранил подзадачи");
+        assertEquals(3, taskManager.getPrioritizedTasks().size());
+        assertThrows(
+                NullPointerException.class,
+                () -> taskManager.getEpic(0)
+        );
     }
 
-    public void updateEpic() {
+    public void updateEpicTest() {
         SubTask subTask1 = new SubTask("Test updateEpic", "Test updateEpic description", 0,
                 Status.NEW, Duration.ofMinutes(60), LocalDateTime.parse("01.01.2023;12:00", FORMATTER), 0);
         Epic epic1 = new Epic("Test updateEpic", "Test updateEpic description",
@@ -120,11 +128,19 @@ abstract class TaskManagerTest<T extends TaskManager> {
         final Epic savedEpic = taskManager.getEpic(epicId);
         final List<Integer> subTasksOfEpic = List.of(subTaskId);
 
+        assertNotNull(taskManager.getAllTasks());
         assertNotEquals(epic1, savedEpic, "Старый эпик не заменился на новый");
         assertEquals(subTasksOfEpic, savedEpic.getSubTaskIds(), "Подзадачи не перешли к обновлённому эпику");
+        assertEquals(1, taskManager.getAllEpics().size());
+        assertEquals(1, taskManager.getAllSubTasks().size());
+        assertEquals(2, taskManager.getPrioritizedTasks().size());
+        assertThrows(
+                NullPointerException.class,
+                () -> taskManager.getEpic(0)
+        );
     }
 
-    public void updateTask() {
+    public void updateTaskTest() {
         Task task1 = new Task("name1", "description1", 0, Status.NEW, Duration.ofMinutes(60),
                 LocalDateTime.parse("01.01.2023;12:00", FORMATTER));
         Task task2 = new Task("name2", "description2", 1, Status.NEW, Duration.ofMinutes(60),
@@ -140,9 +156,15 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
         assertNotNull(taskManager.getAllTasks(), "Задачи на возвращаются.");
         assertNotEquals(task1, savedTask, "Старая задача не заменилась на новую");
+        assertEquals(1, taskManager.getAllTasks().size());
+        assertEquals(1, taskManager.getPrioritizedTasks().size());
+        assertThrows(
+                NullPointerException.class,
+                () -> taskManager.getTask(0)
+        );
     }
 
-    public void updateSubTask() {
+    public void updateSubTaskTest() {
         SubTask subTask1 = new SubTask("name1", "description1", 0, Status.NEW,
                 Duration.ofMinutes(60), LocalDateTime.parse("01.01.2023;12:00", FORMATTER), 0);
         SubTask subTask2 = new SubTask("name2", "description2", 1, Status.NEW,
@@ -158,7 +180,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
         taskManager.addEpic(epic);
 
-        final int epicsId = subTask1.getEpicId();
+        final int epicId = subTask1.getEpicId();
 
         taskManager.updateSubTask(subTask2);
 
@@ -166,10 +188,17 @@ abstract class TaskManagerTest<T extends TaskManager> {
         final SubTask savedSubTask = taskManager.getSubTask(epicSaved.get(0));
 
         assertNotEquals(savedSubTask, subTask1, "Подзадача не обновилась");
-        assertEquals(epicsId, savedSubTask.getEpicId());
+        assertEquals(epicId, savedSubTask.getEpicId());
+        assertEquals(1, taskManager.getAllSubTasks().size());
+        assertEquals(1, taskManager.getAllEpics().size());
+        assertEquals(2, taskManager.getPrioritizedTasks().size());
+        assertThrows(
+                NullPointerException.class,
+                () -> taskManager.getSubTask(0)
+        );
     }
 
-    public void getAllTasks() {
+    public void getAllTasksTest() {
         Task task1 = new Task("name1", "description1", 0, Status.NEW, Duration.ofMinutes(60),
                 LocalDateTime.parse("02.01.2023;12:00", FORMATTER));
         Task task2 = new Task("name2", "description2", 1, Status.NEW, Duration.ofMinutes(60),
@@ -180,10 +209,12 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
         List<Task> allTasks = taskManager.getAllTasks();
 
+        assertNotNull(allTasks);
         assertEquals(2, allTasks.size(), "Возвращаются не все задачи");
+        assertEquals(2, taskManager.getPrioritizedTasks().size());
     }
 
-    public void getAllSubTasks() {
+    public void getAllSubTasksTest() {
         SubTask subTask1 = new SubTask("name1", "description1", 0, Status.NEW,
                 Duration.ofMinutes(60), LocalDateTime.parse("02.01.2023;12:00", FORMATTER), 0);
         SubTask subTask2 = new SubTask("name2", "description2", 1, Status.NEW,
@@ -194,16 +225,16 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
         List<SubTask> allSubTasks = taskManager.getAllSubTasks();
 
+        assertNotNull(allSubTasks);
         assertEquals(2, allSubTasks.size(), "Возвращаются не все задачи");
+        assertEquals(2, taskManager.getPrioritizedTasks().size());
     }
 
-    public void getAllEpics() {
+    public void getAllEpicsTest() {
         Epic epic1 = new Epic("name1", "description1", 1, Status.NEW, Duration.ZERO,
                 LocalDateTime.MIN);
         Epic epic2 = new Epic("name2", "description2", 2, Status.DONE,
                 Duration.ZERO, LocalDateTime.MAX);
-
-        List<Epic> beforeSaved = List.of(epic1, epic2);
 
         taskManager.addEpic(epic1);
         taskManager.addEpic(epic2);
@@ -212,10 +243,11 @@ abstract class TaskManagerTest<T extends TaskManager> {
         List<Epic> allEpics = taskManager.getAllEpics();
 
         assertEquals(2, allEpics.size(), "Возвращаются не все эпики");
-        assertEquals(beforeSaved, allEpics, "Задачи возвращаются неверно");
+        assertNotNull(allEpics);
+        assertEquals(2, taskManager.getPrioritizedTasks().size());
     }
 
-    public void getTask() {
+    public void getTaskTest() {
         Task task = new Task("name", "description", 0, Status.NEW, Duration.ofMinutes(60),
                 LocalDateTime.parse("02.01.2023;12:00", FORMATTER));
 
@@ -224,10 +256,15 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
         Task savedTask = taskManager.getTask(taskId);
 
-        assertEquals(task, savedTask);
+        assertNotNull(savedTask);
+        assertEquals(1, taskId);
+        assertThrows(
+                NullPointerException.class,
+                () -> taskManager.getTask(0)
+        );
     }
 
-    public void getEpic() {
+    public void getEpicTest() {
         Epic epic = new Epic("name", "description", 0, Status.NEW, Duration.ZERO, LocalDateTime.MIN);
 
         taskManager.addEpic(epic);
@@ -236,11 +273,15 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
         Epic savedEpic = taskManager.getEpic(epicId);
 
-        assertEquals(epic, savedEpic);
-
+        assertNotNull(savedEpic);
+        assertEquals(1, epicId);
+        assertThrows(
+                NullPointerException.class,
+                () -> taskManager.getEpic(0)
+        );
     }
 
-    public void getSubTask() {
+    public void getSubTaskTest() {
         SubTask subTask = new SubTask("name", "description", 0, Status.NEW, Duration.ofMinutes(60),
                 LocalDateTime.parse("02.01.2023;12:00", FORMATTER), 0);
 
@@ -250,10 +291,15 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
         SubTask savedSubTask = taskManager.getSubTask(subTaskId);
 
-        assertEquals(subTask, savedSubTask);
+        assertNotNull(savedSubTask);
+        assertEquals(1, subTaskId);
+        assertThrows(
+                NullPointerException.class,
+                () -> taskManager.getSubTask(0)
+        );
     }
 
-    public void removeAllTasks() {
+    public void removeAllTasksTest() {
         Task task1 = new Task("name1", "description1", 0, Status.NEW, Duration.ofMinutes(60),
                 LocalDateTime.parse("02.01.2023;12:00", FORMATTER));
         Task task2 = new Task("name2", "description2", 1, Status.NEW, Duration.ofMinutes(60),
@@ -263,11 +309,16 @@ abstract class TaskManagerTest<T extends TaskManager> {
         taskManager.addTask(task2);
         taskManager.removeAllTasks();
 
-        List emptyList = Collections.emptyList();
+        List<Task> emptyList = Collections.emptyList();
         assertEquals(emptyList, taskManager.getAllTasks());
+        assertEquals(emptyList, taskManager.getPrioritizedTasks());
+        assertThrows(
+                NullPointerException.class,
+                () -> taskManager.getTask(1)
+        );
     }
 
-    public void removeAllEpics() {
+    public void removeAllEpicsTest() {
         Epic epic1 = new Epic("name1", "description1", 0, Status.NEW, Duration.ZERO,
                 LocalDateTime.MIN);
         Epic epic2 = new Epic("name2", "description2", 0, Status.DONE, Duration.ZERO,
@@ -279,28 +330,32 @@ abstract class TaskManagerTest<T extends TaskManager> {
         final int subTaskId = subTask1.getId();
         epic1.addSubTaskId(subTaskId);
         taskManager.addEpic(epic1);
-        final int epic1Id = epic1.getId();
         taskManager.addEpic(epic2);
 
         taskManager.removeAllEpics();
 
-        List emptyList = Collections.emptyList();
+        List<Task> emptyList = Collections.emptyList();
+
         assertEquals(emptyList, taskManager.getAllEpics());
         assertEquals(emptyList, taskManager.getAllSubTasks());
+        assertEquals(emptyList, taskManager.getPrioritizedTasks());
+        assertThrows(
+                NullPointerException.class,
+                () -> taskManager.getEpic(1)
+        );
     }
 
-    public void removeAllSubTasks() {
+    public void removeAllSubTasksTest() {
         SubTask subTask1 = new SubTask("name1", "description1", 0, Status.NEW,
                 Duration.ofMinutes(60), LocalDateTime.parse("02.01.2023;12:00", FORMATTER),0);
         SubTask subTask2 = new SubTask("name2", "description2", 0, Status.NEW,
                 Duration.ofMinutes(60), LocalDateTime.parse("03.01.2023;12:00", FORMATTER), 0);
-        Epic epic = new Epic("name", "description", 0, Status.NEW, Duration.ZERO,
-                LocalDateTime.MAX);
+        Epic epic = new Epic("name", "description", 0, Status.NEW, Duration.ZERO, LocalDateTime.MAX);
 
         taskManager.addSubTask(subTask1);
         taskManager.addSubTask(subTask2);
-        final int subTask1Id = subTask1.getId();
-        epic.addSubTaskId(subTask1Id);
+
+        epic.addSubTaskId(subTask1.getId());
         epic.addSubTaskId(subTask2.getId());
         taskManager.addEpic(epic);
 
@@ -310,9 +365,14 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
         assertEquals(emptyList, taskManager.getAllSubTasks());
         assertEquals(emptyList, epic.getSubTaskIds());
+        assertEquals(1, taskManager.getPrioritizedTasks().size());
+        assertThrows(
+                NullPointerException.class,
+                () -> taskManager.getSubTask(1)
+        );
     }
 
-    public void removeTask() {
+    public void removeTaskTest() {
         Task task1 = new Task("name1", "description1", 0, Status.NEW, Duration.ofMinutes(60),
                 LocalDateTime.parse("02.01.2023;12:00", FORMATTER));
 
@@ -324,24 +384,236 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
         taskManager.removeTask(taskId);
 
-        assertEquals(Collections.emptyList(), taskManager.getAllTasks());
-    }
-/*
-    public void removeEpic() {
+        List<Task> emptyList = Collections.emptyList();
 
-    }
-
-    public void removeSubTask() {
-
-    }
-
-    public void getSubTasksOfEpic() {
-
+        assertEquals(emptyList, taskManager.getAllTasks());
+        assertEquals(emptyList, taskManager.getPrioritizedTasks());
+        assertThrows(
+                NullPointerException.class,
+                () -> taskManager.getTask(1)
+        );
     }
 
-    public void getHistory() {
+    public void removeEpicTest() {
+        Epic epic = new Epic("name", "description", 0, Status.NEW, Duration.ZERO, LocalDateTime.MAX);
+        SubTask subTask1 = new SubTask("name1", "description1", 0, Status.NEW,
+                Duration.ofMinutes(60), LocalDateTime.parse("02.01.2023;12:00", FORMATTER),0);
 
+        taskManager.addSubTask(subTask1);
+        epic.addSubTaskId(subTask1.getId());
+        taskManager.addEpic(epic);
+
+        final int epicId = epic.getId();
+
+        assertEquals(1, taskManager.getAllEpics().size());
+
+        taskManager.removeEpic(epicId);
+
+        List<Task> emptyList = Collections.emptyList();
+
+        assertEquals(emptyList, taskManager.getAllEpics());
+        assertEquals(emptyList, taskManager.getPrioritizedTasks());
+        assertEquals(emptyList, taskManager.getAllSubTasks());
+        assertThrows(
+                NullPointerException.class,
+                () -> taskManager.getEpic(1)
+        );
     }
 
- */
+    public void removeSubTaskTest() {
+        SubTask subTask1 = new SubTask("name1", "description1", 0, Status.NEW,
+                Duration.ofMinutes(60), LocalDateTime.parse("02.01.2023;12:00", FORMATTER),0);
+        SubTask subTask2 = new SubTask("name2", "description2", 0, Status.NEW,
+                Duration.ofMinutes(60), LocalDateTime.parse("03.01.2023;12:00", FORMATTER), 0);
+        Epic epic = new Epic("name", "description", 0, Status.NEW, Duration.ZERO, LocalDateTime.MAX);
+
+        taskManager.addSubTask(subTask1);
+        taskManager.addSubTask(subTask2);
+        epic.addSubTaskId(subTask1.getId());
+        epic.addSubTaskId(subTask2.getId());
+        taskManager.addEpic(epic);
+
+        taskManager.removeSubTask(1);
+
+        assertEquals(1, taskManager.getAllSubTasks().size());
+        assertEquals(1, epic.getSubTaskIds().size());
+        assertEquals(taskManager.getAllSubTasks().size(), epic.getSubTaskIds().size());
+        assertThrows(
+                NullPointerException.class,
+                () -> taskManager.getSubTask(1)
+        );
+    }
+
+    public void getSubTasksOfEpicTest() {
+        SubTask subTask1 = new SubTask("name1", "description1", 0, Status.NEW,
+                Duration.ofMinutes(60), LocalDateTime.parse("02.01.2023;12:00", FORMATTER),0);
+        SubTask subTask2 = new SubTask("name2", "description2", 0, Status.NEW,
+                Duration.ofMinutes(60), LocalDateTime.parse("03.01.2023;12:00", FORMATTER), 0);
+        Epic epic = new Epic("name", "description", 0, Status.NEW, Duration.ZERO, LocalDateTime.MAX);
+
+        taskManager.addSubTask(subTask1);
+        taskManager.addSubTask(subTask2);
+        epic.addSubTaskId(subTask1.getId());
+        epic.addSubTaskId(subTask2.getId());
+        taskManager.addEpic(epic);
+
+        List<Integer> subTasks = List.of(subTask1.getId(), subTask2.getId());
+
+        assertEquals(subTasks, epic.getSubTaskIds());
+    }
+
+    public void getHistoryTest() {
+        SubTask subTask1 = new SubTask("name1", "description1", 0, Status.NEW,
+                Duration.ofMinutes(60), LocalDateTime.parse("02.01.2023;12:00", FORMATTER),0);
+        SubTask subTask2 = new SubTask("name2", "description2", 0, Status.NEW,
+                Duration.ofMinutes(60), LocalDateTime.parse("03.01.2023;12:00", FORMATTER), 0);
+        Epic epic = new Epic("name3", "description3", 0, Status.NEW, Duration.ZERO,
+                LocalDateTime.MAX);
+        Task task1 = new Task("name4", "description4", 0, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("06.01.2023;12:00", FORMATTER));
+        Task task2 = new Task("name5", "description5", 1, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("07.01.2023;12:00", FORMATTER));
+
+        taskManager.addSubTask(subTask1);
+        taskManager.addSubTask(subTask2);
+        epic.addSubTaskId(subTask1.getId());
+        epic.addSubTaskId(subTask2.getId());
+        taskManager.addEpic(epic);
+        taskManager.addTask(task1);
+        taskManager.addTask(task2);
+
+        taskManager.getTask(4);
+        taskManager.getTask(5);
+        taskManager.getSubTask(1);
+        taskManager.getEpic(3);
+        taskManager.getTask(4);
+
+        List<Task> historyTasks = List.of(task2, subTask1, epic, task1);
+
+        assertEquals(historyTasks, taskManager.getHistory());
+        assertNotNull(taskManager.getHistory());
+    }
+
+    public void getPrioritizedTasksTest() {
+        SubTask subTask1 = new SubTask("name1", "description1", 0, Status.NEW,
+                Duration.ofMinutes(60), LocalDateTime.parse("02.01.2023;12:00", FORMATTER),0);
+        SubTask subTask2 = new SubTask("name2", "description2", 0, Status.NEW,
+                Duration.ofMinutes(60), LocalDateTime.parse("03.01.2023;12:00", FORMATTER), 0);
+        Epic epic = new Epic("name3", "description3", 0, Status.NEW, Duration.ZERO,
+                LocalDateTime.MAX);
+        Task task1 = new Task("name4", "description4", 0, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("06.01.2023;12:00", FORMATTER));
+        Task task2 = new Task("name5", "description5", 1, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("07.01.2023;12:00", FORMATTER));
+
+        taskManager.addSubTask(subTask1);
+        taskManager.addSubTask(subTask2);
+        epic.addSubTaskId(subTask1.getId());
+        epic.addSubTaskId(subTask2.getId());
+        taskManager.addEpic(epic);
+        taskManager.addTask(task1);
+        taskManager.addTask(task2);
+
+        List<Task> tasks = List.of(epic, subTask1, subTask2, task1, task2);
+
+        assertEquals(tasks, taskManager.getPrioritizedTasks());
+    }
+
+    public void taskValidationTest() {
+        SubTask subTask1 = new SubTask("name1", "description1", 0, Status.NEW,
+                Duration.ofMinutes(60), LocalDateTime.parse("02.01.2023;12:00", FORMATTER),0);
+        SubTask subTask2 = new SubTask("name2", "description2", 0, Status.NEW,
+                Duration.ofMinutes(60), LocalDateTime.parse("02.01.2023;12:00", FORMATTER), 0);
+        Task task1 = new Task("name3", "description3", 0, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("06.01.2023;12:00", FORMATTER));
+        Task task2 = new Task("name4", "description4", 1, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("06.01.2023;12:00", FORMATTER));
+
+        taskManager.addTask(task1);
+        taskManager.addSubTask(subTask1);
+        assertThrows(
+                ManagerValidateException.class,
+                () -> taskManager.addSubTask(subTask2)
+        );
+
+        assertThrows(
+                ManagerValidateException.class,
+                () -> taskManager.addTask(task2)
+        );
+    }
+
+    public void epicStatusShouldBeNewWithEmptySubtasks() {
+        Epic epic = new Epic("name1", "description1", 0, Status.DONE,  Duration.ZERO,
+                LocalDateTime.MAX);
+        taskManager.addEpic(epic);
+        assertEquals(Status.NEW, taskManager.getEpic(1).getStatus(), "Статус определяется" +
+                " неправильно");
+    }
+
+    public void epicStatusShouldBeNew() {
+        SubTask stask1 = new SubTask("name1", "description1", 0, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("02.01.2023;12:00", FORMATTER),0);
+        SubTask stask2 = new SubTask("name2", "description2", 0, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("03.01.2023;12:00", FORMATTER), 0);
+        Epic epic = new Epic("name3", "description3", 0, Status.DONE,  Duration.ZERO,
+                LocalDateTime.MAX);
+
+        taskManager.addSubTask(stask1);
+        taskManager.addSubTask(stask2);
+        epic.addSubTaskId(stask1.getId());
+        epic.addSubTaskId(stask2.getId());
+        taskManager.addEpic(epic);
+        assertEquals(Status.NEW, taskManager.getEpic(3).getStatus(), "Статус определяется неправильно");
+    }
+
+    public void epicStatusShouldBeDone() {
+        SubTask stask1 = new SubTask("name1", "description1", 0, Status.DONE, Duration.ofMinutes(60),
+                LocalDateTime.parse("02.01.2023;12:00", FORMATTER),0);
+        SubTask stask2 = new SubTask("name2", "description2", 0, Status.DONE, Duration.ofMinutes(60),
+                LocalDateTime.parse("03.01.2023;12:00", FORMATTER), 0);
+        Epic epic = new Epic("name3", "description3", 0, Status.NEW,  Duration.ZERO,
+                LocalDateTime.MAX);
+
+        taskManager.addSubTask(stask1);
+        taskManager.addSubTask(stask2);
+        epic.addSubTaskId(stask1.getId());
+        epic.addSubTaskId(stask2.getId());
+        taskManager.addEpic(epic);
+        assertEquals(Status.DONE, taskManager.getEpic(3).getStatus(), "Статус определяется" +
+                " неправильно");
+    }
+
+    public void epicStatusShouldBeInProgressWithNewAndDoneSubtasks() {
+        SubTask stask1 = new SubTask("name1", "description1", 0, Status.DONE, Duration.ofMinutes(60),
+                LocalDateTime.parse("02.01.2023;12:00", FORMATTER),0);
+        SubTask stask2 = new SubTask("name2", "description2", 0, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("03.01.2023;12:00", FORMATTER), 0);
+        Epic epic = new Epic("name3", "description3", 0, Status.NEW,  Duration.ZERO,
+                LocalDateTime.MAX);
+
+        taskManager.addSubTask(stask1);
+        taskManager.addSubTask(stask2);
+        epic.addSubTaskId(stask1.getId());
+        epic.addSubTaskId(stask2.getId());
+        taskManager.addEpic(epic);
+        assertEquals(Status.IN_PROGRESS, taskManager.getEpic(3).getStatus(), "Статус" +
+                " определяется неправильно");
+    }
+
+    public void epicStatusShouldBeInProgressWithInProgressSubtasks() {
+        SubTask stask1 = new SubTask("name1", "description1", 0, Status.IN_PROGRESS,
+                Duration.ofMinutes(60), LocalDateTime.parse("02.01.2023;12:00", FORMATTER),0);
+        SubTask stask2 = new SubTask("name2", "description2", 0, Status.IN_PROGRESS,
+                Duration.ofMinutes(60), LocalDateTime.parse("03.01.2023;12:00", FORMATTER), 0);
+        Epic epic = new Epic("name3", "description3", 0, Status.NEW,  Duration.ZERO,
+                LocalDateTime.MAX);
+
+        taskManager.addSubTask(stask1);
+        taskManager.addSubTask(stask2);
+        epic.addSubTaskId(stask1.getId());
+        epic.addSubTaskId(stask2.getId());
+        taskManager.addEpic(epic);
+        assertEquals(Status.IN_PROGRESS, taskManager.getEpic(3).getStatus(), "Статус" +
+                " определяется неправильно");
+    }
 }

@@ -143,5 +143,5 @@ public interface TaskManager {
     /**
      * @return отсортированные задачи по приоритету;
      */
-    Set<Task> getPrioritizedTasks();
+    List<Task> getPrioritizedTasks();
 }
