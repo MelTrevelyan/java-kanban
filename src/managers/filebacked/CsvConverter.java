@@ -44,6 +44,8 @@ public class CsvConverter {
             Epic epic = new Epic(split[2], split[4], Integer.parseInt(split[0]), status,
                     Duration.ofMinutes(Long.parseLong(split[5])), LocalDateTime.parse(split[6], FORMATTER));
             epic.setSubTaskIds(subsId);
+            epic.setEndTime(LocalDateTime.parse(split[6], FORMATTER).plus(Duration.ofMinutes(Long
+                    .parseLong(split[5]))));
             return epic;
         }
         return new Task(split[2], split[4], Integer.parseInt(split[0]), status,

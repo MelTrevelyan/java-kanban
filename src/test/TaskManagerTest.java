@@ -16,7 +16,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static tasks.Task.FORMATTER;
 
-abstract class TaskManagerTest<T extends TaskManager> {
+public abstract class TaskManagerTest<T extends TaskManager> {
 
     protected T taskManager;
 
@@ -615,5 +615,56 @@ abstract class TaskManagerTest<T extends TaskManager> {
         taskManager.addEpic(epic);
         assertEquals(Status.IN_PROGRESS, taskManager.getEpic(3).getStatus(), "Статус" +
                 " определяется неправильно");
+    }
+
+    public void epicStartTimeTest() {
+        SubTask stask1 = new SubTask("name1", "description1", 0, Status.IN_PROGRESS,
+                Duration.ofMinutes(60), LocalDateTime.parse("02.01.2023;12:00", FORMATTER), 0);
+        SubTask stask2 = new SubTask("name2", "description2", 0, Status.IN_PROGRESS,
+                Duration.ofMinutes(60), LocalDateTime.parse("02.01.2023;14:00", FORMATTER), 0);
+        Epic epic = new Epic("name3", "description3", 0, Status.NEW, Duration.ZERO,
+                LocalDateTime.MAX);
+
+        taskManager.addSubTask(stask1);
+        taskManager.addSubTask(stask2);
+        epic.addSubTaskId(stask1.getId());
+        epic.addSubTaskId(stask2.getId());
+        taskManager.addEpic(epic);
+
+        assertEquals(LocalDateTime.parse("02.01.2023;12:00", FORMATTER), epic.getStartTime());
+    }
+
+    public void setEpicDurationTest() {
+        SubTask stask1 = new SubTask("name1", "description1", 0, Status.IN_PROGRESS,
+                Duration.ofMinutes(60), LocalDateTime.parse("02.01.2023;12:00", FORMATTER), 0);
+        SubTask stask2 = new SubTask("name2", "description2", 0, Status.IN_PROGRESS,
+                Duration.ofMinutes(60), LocalDateTime.parse("02.01.2023;14:00", FORMATTER), 0);
+        Epic epic = new Epic("name3", "description3", 0, Status.NEW, Duration.ZERO,
+                LocalDateTime.MAX);
+
+        taskManager.addSubTask(stask1);
+        taskManager.addSubTask(stask2);
+        epic.addSubTaskId(stask1.getId());
+        epic.addSubTaskId(stask2.getId());
+        taskManager.addEpic(epic);
+
+        assertEquals(epic.getDuration(), Duration.ofMinutes(180));
+    }
+
+    public void epicEndTimeTest() {
+        SubTask stask1 = new SubTask("name1", "description1", 0, Status.IN_PROGRESS,
+                Duration.ofMinutes(60), LocalDateTime.parse("02.01.2023;12:00", FORMATTER), 0);
+        SubTask stask2 = new SubTask("name2", "description2", 0, Status.IN_PROGRESS,
+                Duration.ofMinutes(60), LocalDateTime.parse("02.01.2023;14:00", FORMATTER), 0);
+        Epic epic = new Epic("name3", "description3", 0, Status.NEW, Duration.ZERO,
+                LocalDateTime.MAX);
+
+        taskManager.addSubTask(stask1);
+        taskManager.addSubTask(stask2);
+        epic.addSubTaskId(stask1.getId());
+        epic.addSubTaskId(stask2.getId());
+        taskManager.addEpic(epic);
+
+        assertEquals(LocalDateTime.parse("02.01.2023;15:00", FORMATTER), epic.getEndTime());
     }
 }

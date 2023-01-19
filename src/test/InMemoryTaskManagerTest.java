@@ -145,4 +145,19 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
     public void epicStatusShouldBeInProgressWithInProgressSubtasks() {
         super.epicStatusShouldBeInProgressWithInProgressSubtasks();
     }
+
+    @Test
+    public void epicStartTimeTest() {
+        super.epicStartTimeTest();
+    }
+
+    @Test
+    public void setEpicDurationTest() {
+        super.setEpicDurationTest();
+    }
+
+    @Test
+    public void epicEndTimeTest() {
+        super.epicEndTimeTest();
+    }
 }

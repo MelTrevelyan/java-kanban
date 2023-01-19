@@ -127,8 +127,8 @@ public class InMemoryTaskManager implements TaskManager {
             epic.setStartTime(earliestStartTime);
             epic.setEndTime(latestEndTime);
         } else {
-            epic.setStartTime(LocalDateTime.MAX);
-            epic.setEndTime(LocalDateTime.MAX);
+            epic.setStartTime(LocalDateTime.MAX.minusSeconds(59).minusNanos(999999999));
+            epic.setEndTime(LocalDateTime.MAX.minusSeconds(59).minusNanos(999999999));
         }
         epic.setDuration(epicDuration);
     }
@@ -244,7 +244,7 @@ public class InMemoryTaskManager implements TaskManager {
             historyManager.remove(subId);
             anyTypeTasks.remove(subTasksMap.get(subId));
         }
-        removeAllSubTasks();
+        subTasksMap.clear();
     }
 
     @Override

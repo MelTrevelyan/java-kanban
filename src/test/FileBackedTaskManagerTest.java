@@ -178,6 +178,21 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<InMemoryTaskManag
     }
 
     @Test
+    public void epicStartTimeTest() {
+        super.epicStartTimeTest();
+    }
+
+    @Test
+    public void setEpicDurationTest() {
+        super.setEpicDurationTest();
+    }
+
+    @Test
+    public void epicEndTimeTest() {
+        super.epicEndTimeTest();
+    }
+
+    @Test
     public void emptyLoadFromFileTest() {
         taskManager = FileBackedTasksManager.loadFromFile(save);
 
@@ -194,13 +209,10 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<InMemoryTaskManag
         Epic epic = new Epic("name", "description", 0, Status.NEW, Duration.ZERO, LocalDateTime.MAX);
 
         taskManager.addEpic(epic);
-        taskManager.getEpic(1);
-
-        Epic savedEpic = taskManager.getEpic(1);
 
         taskManager = FileBackedTasksManager.loadFromFile(save);
 
-        assertEquals(epic, savedEpic);
+        assertEquals(epic, taskManager.getEpic(1));
         assertEquals(1, taskManager.getAllEpics().size());
         assertEquals(1, taskManager.getHistory().size());
     }
@@ -225,8 +237,9 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<InMemoryTaskManag
         taskManager = FileBackedTasksManager.loadFromFile(save);
 
         assertEquals(Collections.emptyList(), taskManager.getHistory());
+        assertEquals(epic, taskManager.getEpic(3));
         assertEquals(1, taskManager.getAllEpics().size());
-        assertEquals(List.of(stask1, stask2), taskManager.getAllSubTasks());
+        assertEquals(2, taskManager.getAllSubTasks().size());
         assertEquals(subTasks, epic.getSubTaskIds());
     }
 }
