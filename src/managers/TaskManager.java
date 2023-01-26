@@ -143,4 +143,10 @@ public interface TaskManager {
      * @return отсортированные задачи по приоритету;
      */
     List<Task> getPrioritizedTasks();
+
+    /**
+     *
+     * @return значенрия nextId менедера;
+     */
+    Integer getNextId();
 }

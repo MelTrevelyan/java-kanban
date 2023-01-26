@@ -36,6 +36,11 @@ public class InMemoryTaskManager implements TaskManager {
     protected HistoryManager historyManager = Managers.getDefaultHistory();
 
     @Override
+    public Integer getNextId() {
+        return nextId;
+    }
+
+    @Override
     public List<Task> getPrioritizedTasks() {
         return List.copyOf(anyTypeTasks);
     }
