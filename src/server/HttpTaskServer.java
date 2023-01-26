@@ -30,7 +30,7 @@ public class HttpTaskServer {
     private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
     private final HttpServer httpServer;
     public final TaskManager taskManager;
-    private File save;
+    private final File save;
     private final Gson gson;
 
     public HttpTaskServer() throws IOException {
@@ -86,6 +86,8 @@ public class HttpTaskServer {
                     return Endpoint.GET_EPIC_BY_ID;
                 } else if (Pattern.matches("^/tasks/subtask/epic/id=\\d+$", path + query)) {
                     return Endpoint.GET_EPIC_SUBTASKS;
+                } else if (Pattern.matches("^/tasks/history$", path)) {
+                    return Endpoint.GET_HISTORY;
                 }
                 break;
             case "POST":
@@ -114,8 +116,6 @@ public class HttpTaskServer {
                     return Endpoint.DELETE_ALL_TASKS;
                 }
         }
-        System.out.println(path);
-        System.out.println(query);
         return defaultEndpoint;
     }
 
@@ -342,4 +342,6 @@ public class HttpTaskServer {
         exchange.close();
     }
 }
+
+
 

@@ -147,6 +147,7 @@ public class InMemoryTaskManager implements TaskManager {
                         || task.getStartTime().isAfter(listTask.getEndTime())
                         && task.getEndTime().isAfter(listTask.getEndTime())) {
                 } else {
+                    System.out.println("Ошибка валидации. Задача не добавлена");
                     throw new ManagerValidateException();
                 }
             }
