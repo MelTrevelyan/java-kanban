@@ -54,7 +54,6 @@ public class HttpTaskServer {
                 LocalDateTime.parse("06.01.2023;17:00", FORMATTER));
         new KVServer().start();
         HttpTaskServer server = new HttpTaskServer();
-
     }
 
     private Endpoint getEndpoint(String path, String query, String requestMethod) {

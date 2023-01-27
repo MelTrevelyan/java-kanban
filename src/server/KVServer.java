@@ -13,7 +13,6 @@ import java.net.URI;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -48,11 +47,13 @@ public class KVServer {
         Gson gson = new Gson();
         new KVServer().start();
         KVTaskClient client = new KVTaskClient(URI.create("http://localhost:8078/register"));
-        client.put("allTasks", gson.toJson(List.of(task1)));
+        client.put("allTasks", gson.toJson(task1));
+        client.put("allSubtasks", gson.toJson(stask1));
+        client.put("allTasks", gson.toJson(task2));
+        client.put("allSubtasks", gson.toJson(stask2));
 
         System.out.println(client.load("allTasks"));
-        System.out.println(client.load("history"));
-        //HttpTaskServer server = new HttpTaskServer();
+        System.out.println(client.load("allSubtasks"));
     }
 
     private void load(HttpExchange h) throws IOException {
