@@ -1,10 +1,9 @@
 package managers;
 
-import managers.filebacked.FileBackedTasksManager;
 import managers.inmemory.InMemoryHistoryManager;
-import managers.inmemory.InMemoryTaskManager;
+import server.HttpTaskManager;
 
-import java.io.File;
+import java.net.URI;
 
 /**
  * Утилитарный класс Managers занимается созданием менеджера задач и менеждера истории задач;
@@ -12,12 +11,7 @@ import java.io.File;
 public class Managers {
 
     public static TaskManager getDefault() {
-        return new InMemoryTaskManager();
-    }
-
-    public static TaskManager getFileBacked() {
-        File save = new File("resources/save.csv");
-        return new FileBackedTasksManager(save);
+            return new HttpTaskManager(URI.create("http://localhost:8078/register"));
     }
 
     public static HistoryManager getDefaultHistory() {

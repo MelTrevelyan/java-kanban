@@ -1,25 +1,34 @@
 package server;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
+import com.google.gson.Gson;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpServer;
+import tasks.Status;
+import tasks.SubTask;
+import tasks.Task;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.URI;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpServer;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static tasks.Task.FORMATTER;
 
-/**
- * Постман: https://www.getpostman.com/collections/a83b61d9e1c81c10575c
- */
 public class KVServer {
     public static final int PORT = 8078;
     private final String apiToken;
     private final HttpServer server;
     private final Map<String, String> data = new HashMap<>();
 
+    Gson gson;
+
     public KVServer() throws IOException {
+        gson = new Gson();
         apiToken = generateApiToken();
         server = HttpServer.create(new InetSocketAddress("localhost", PORT), 0);
         server.createContext("/register", this::register);
@@ -27,30 +36,41 @@ public class KVServer {
         server.createContext("/load", this::load);
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InterruptedException {
+        Task task1 = new Task("исх задача", "description3", 1, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("06.01.2023;12:00", FORMATTER));
+        Task task2 = new Task("задача на замену", "description4", 3, Status.NEW,
+                Duration.ofMinutes(60), LocalDateTime.parse("06.01.2023;17:00", FORMATTER));
+        SubTask stask1 = new SubTask("исх подзадача", "description1", 2, Status.NEW,
+                Duration.ofMinutes(60), LocalDateTime.parse("02.01.2023;12:00", FORMATTER), 0);
+        SubTask stask2 = new SubTask("подзадача на замену", "description2", 4, Status.NEW,
+                Duration.ofMinutes(60), LocalDateTime.parse("03.01.2023;12:00", FORMATTER), 0);
+        Gson gson = new Gson();
         new KVServer().start();
+        KVTaskClient client = new KVTaskClient(URI.create("http://localhost:8078/register"));
+        client.put("allTasks", gson.toJson(List.of(task1)));
+
+        System.out.println(client.load("allTasks"));
+        System.out.println(client.load("history"));
+        //HttpTaskServer server = new HttpTaskServer();
     }
 
-    private void load(HttpExchange h) {
-        try {
-            if (!hasAuth(h)) {
-                System.out.println("Запрос неавторизован, нужен параметр в query API_TOKEN со значением апи-ключа");
-                h.sendResponseHeaders(403, 0);
+    private void load(HttpExchange h) throws IOException {
+        if (!hasAuth(h)) {
+            System.out.println("Запрос неавторизован, нужен параметр в query API_TOKEN со значением апи-ключа");
+            h.sendResponseHeaders(403, 0);
+            return;
+        }
+        System.out.println("\n/load");
+        if ("GET".equals(h.getRequestMethod())) {
+            String key = h.getRequestURI().getPath().replaceFirst("/load/", "");
+            if (data.containsKey(key)) {
+                String value = data.get(key);
+                sendText(h, value);
                 return;
             }
-            System.out.println("load");
-            if ("GET".equals(h.getRequestMethod())) {
-                String key = h.getRequestURI().getPath().replaceFirst("/load/", "");
-                if (data.containsKey(key)) {
-                    String value = data.get(key);
-                    sendText(h, value);
-                    return;
-                }
-                System.out.println("Отправлен неправильный ключ");
-            }
-
-        } catch (Exception e) {
-            System.out.println("Возникла ошибка");
+            System.out.println("Отправлен неправильный ключ, или значение не было загружено");
+            sendText(h, gson.toJson(null));
         }
     }
 

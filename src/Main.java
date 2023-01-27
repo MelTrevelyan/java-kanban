@@ -1,20 +1,23 @@
 import managers.Managers;
 import managers.TaskManager;
+import server.HttpTaskServer;
+import server.KVServer;
 import tasks.Epic;
 import tasks.Status;
 import tasks.SubTask;
 import tasks.Task;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
 import static tasks.Task.FORMATTER;
 
 public class Main {
-
-    public static void main(String[] args) {
+/*
+    public static void main(String[] args) throws IOException {
         System.out.println("Поехали!");
-
+        new KVServer().start();
         Task task1 = new Task("Купить цветы", "маме", 0, Status.NEW, Duration.ofMinutes(100),
                 LocalDateTime.parse("13.01.2023;14:30", FORMATTER));
         Task task2 = new Task("Надуть шарики", "Чтобы украсить квартиру", 0, Status.DONE,
@@ -32,7 +35,8 @@ public class Main {
         Epic epic2 = new Epic("name1", "description1", 3, Status.DONE, Duration.ofMinutes(500),
                 LocalDateTime.MAX);
 
-        TaskManager manager = Managers.getDefault();
+        HttpTaskServer server = new HttpTaskServer();
+        TaskManager manager = server.getTaskManager();
 
         manager.addSubTask(stask1);
         manager.getSubTask(1);
@@ -54,4 +58,6 @@ public class Main {
 
         System.out.println(manager.getPrioritizedTasks());
     }
+
+ */
 }

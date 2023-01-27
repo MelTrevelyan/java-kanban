@@ -7,15 +7,15 @@ import com.google.gson.JsonParser;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
-import exception.ManagerSaveException;
+import managers.Managers;
 import managers.TaskManager;
-import managers.filebacked.FileBackedTasksManager;
 import tasks.Epic;
 import tasks.Status;
 import tasks.SubTask;
 import tasks.Task;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -30,15 +30,13 @@ public class HttpTaskServer {
     private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
     private final HttpServer httpServer;
     public final TaskManager taskManager;
-    private final File save;
     private final Gson gson;
 
     public HttpTaskServer() throws IOException {
         httpServer = HttpServer.create();
         httpServer.bind(new InetSocketAddress(PORT), 0);
         httpServer.createContext("/task", new TasksHandler());
-        save = new File("resources/for_server.csv");
-        taskManager = new FileBackedTasksManager(save);
+        taskManager = Managers.getDefault();
         gson = new Gson();
         start();
     }
@@ -54,14 +52,9 @@ public class HttpTaskServer {
                 LocalDateTime.parse("06.01.2023;12:00", FORMATTER));
         Task task2 = new Task("name4", "description4", 1, Status.NEW, Duration.ofMinutes(60),
                 LocalDateTime.parse("06.01.2023;17:00", FORMATTER));
+        new KVServer().start();
         HttpTaskServer server = new HttpTaskServer();
-        server.taskManager.addTask(task1);
-        server.taskManager.addTask(task2);
-        server.taskManager.addSubTask(stask1);
-        server.taskManager.addSubTask(stask2);
-        epic.addSubTaskId(stask1.getId());
-        epic.addSubTaskId(stask2.getId());
-        server.taskManager.addEpic(epic);
+
     }
 
     private Endpoint getEndpoint(String path, String query, String requestMethod) {
@@ -321,11 +314,6 @@ public class HttpTaskServer {
     }
 
     public void stop() {
-        try (Writer fileWriter = new FileWriter(save)) {
-            fileWriter.write("");
-        } catch (IOException e) {
-            throw new ManagerSaveException();
-        }
         httpServer.stop(0);
         System.out.println("Остановили сервер на порту " + PORT);
     }

@@ -20,10 +20,13 @@ import static tasks.Task.FORMATTER;
  * Этот класс включает в себя основную логику работы трекера задач, сохраняющего данные в файл;
  */
 public class FileBackedTasksManager extends InMemoryTaskManager {
-    private final File saving;
+    private File saving;
 
     public FileBackedTasksManager(File saving) {
         this.saving = saving;
+    }
+
+    public FileBackedTasksManager() {
     }
 
     public static void main(String[] args) {
@@ -76,7 +79,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     /**
      * Метод сохраняет в файл задачи и их историю;
      */
-    private void save() {
+    protected void save() {
         try (Writer fileWriter = new FileWriter(saving)) {
             fileWriter.write("id,type,name,status,description,minutes,startTime,epic(subTasks)\n");
             for (Task task : anyTypeTasks) {
