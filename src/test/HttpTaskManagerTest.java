@@ -4,10 +4,10 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import managers.TaskManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import server.HttpTaskManager;
 import server.HttpTaskServer;
 import server.KVServer;
 import tasks.Epic;
@@ -29,19 +29,18 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static tasks.Task.FORMATTER;
 
-public class HttpTaskManagerTest {
+public class HttpTaskManagerTest extends TaskManagerTest<HttpTaskManager> {
 
     private KVServer kvServer;
     private HttpTaskServer server;
     private Gson gson;
-    private TaskManager taskManager;
 
     @BeforeEach
     public void beforeEach() throws IOException {
         kvServer = new KVServer();
         kvServer.start();
         server = new HttpTaskServer();
-        taskManager = server.getTaskManager();
+        taskManager = (HttpTaskManager) server.getTaskManager();
         gson = new Gson();
     }
 
@@ -493,7 +492,7 @@ public class HttpTaskManagerTest {
     }
 
     @Test
-    public void getHistoryTest() throws IOException, InterruptedException {
+    public void getHistoryFromServerTest() throws IOException, InterruptedException {
         Task task1 = new Task("name3", "description3", 0, Status.NEW, Duration.ofMinutes(60),
                 LocalDateTime.parse("06.01.2023;12:00", FORMATTER));
         Task task2 = new Task("name4", "description4", 1, Status.NEW, Duration.ofMinutes(60),
