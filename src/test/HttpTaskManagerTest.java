@@ -1,13 +1,18 @@
 package test;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import managers.TaskManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import server.HttpTaskManager;
 import server.HttpTaskServer;
 import server.KVServer;
+import tasks.Epic;
 import tasks.Status;
+import tasks.SubTask;
 import tasks.Task;
 
 import java.io.IOException;
@@ -24,18 +29,19 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static tasks.Task.FORMATTER;
 
-public class HttpTaskManagerTest extends TaskManagerTest<HttpTaskManager> {
+public class HttpTaskManagerTest {
 
     private KVServer kvServer;
     private HttpTaskServer server;
     private Gson gson;
+    private TaskManager taskManager;
 
     @BeforeEach
     public void beforeEach() throws IOException {
         kvServer = new KVServer();
         kvServer.start();
         server = new HttpTaskServer();
-        taskManager = (HttpTaskManager) server.getTaskManager();
+        taskManager = server.getTaskManager();
         gson = new Gson();
     }
 
@@ -43,152 +49,6 @@ public class HttpTaskManagerTest extends TaskManagerTest<HttpTaskManager> {
     public void afterEach() {
         server.stop();
         kvServer.stop();
-    }
-
-    @Test
-    public void addTaskTest() {
-        super.addTaskTest();
-    }
-
-    @Test
-    public void addSubTaskTest() {
-        super.addSubTaskTest();
-    }
-
-    @Test
-    public void addEpicTest() {
-        super.addEpicTest();
-    }
-
-    @Test
-    public void updateTaskTest() {
-        super.updateTaskTest();
-    }
-
-    @Test
-    public void updateSubTaskTest() {
-        super.updateSubTaskTest();
-    }
-
-    @Test
-    public void updateEpicTest() {
-        super.updateEpicTest();
-    }
-
-    @Test
-    public void getAllTasksTest() {
-        super.getAllTasksTest();
-    }
-
-
-    @Test
-    public void getAllSubtasksTest() {
-        super.getAllSubTasksTest();
-    }
-
-    @Test
-    public void getAllEpicsTest() {
-        super.getAllEpicsTest();
-    }
-
-    @Test
-    public void getTaskTest() {
-        super.getTaskTest();
-    }
-
-    @Test
-    public void getEpicTest() {
-        super.getEpicTest();
-    }
-
-    @Test
-    public void getSubTaskTest() {
-        super.getSubTaskTest();
-    }
-
-    @Test
-    public void removeAllTasksTest() {
-        super.removeAllTasksTest();
-    }
-
-    @Test
-    public void removeAllEpicsTest() {
-        super.removeAllEpicsTest();
-    }
-
-    @Test
-    public void removeAllSubTasksTest() {
-        super.removeAllSubTasksTest();
-    }
-
-    @Test
-    public void removeTaskTest() {
-        super.removeTaskTest();
-    }
-
-    @Test
-    public void removeEpicTest() {
-        super.removeEpicTest();
-    }
-
-    @Test
-    public void removeSubTaskTest() {
-        super.removeSubTaskTest();
-    }
-
-    @Test
-    public void getSubTasksOfEpicTest() {
-        super.getSubTasksOfEpicTest();
-    }
-
-    @Test
-    public void getPrioritizedTasksTest() {
-        super.getPrioritizedTasksTest();
-    }
-
-    @Test
-    public void taskValidationTest() {
-        super.taskValidationTest();
-    }
-
-    @Test
-    public void epicStatusShouldBeNewWithEmptySubtasks() {
-        super.epicStatusShouldBeNewWithEmptySubtasks();
-    }
-
-    @Test
-    public void epicStatusShouldBeNew() {
-        super.epicStatusShouldBeNew();
-    }
-
-    @Test
-    public void epicStatusShouldBeDone() {
-        super.epicStatusShouldBeDone();
-    }
-
-    @Test
-    public void epicStatusShouldBeInProgressWithNewAndDoneSubtasks() {
-        super.epicStatusShouldBeInProgressWithNewAndDoneSubtasks();
-    }
-
-    @Test
-    public void epicStatusShouldBeInProgressWithInProgressSubtasks() {
-        super.epicStatusShouldBeInProgressWithInProgressSubtasks();
-    }
-
-    @Test
-    public void epicStartTimeTest() {
-        super.epicStartTimeTest();
-    }
-
-    @Test
-    public void setEpicDurationTest() {
-        super.setEpicDurationTest();
-    }
-
-    @Test
-    public void epicEndTimeTest() {
-        super.epicEndTimeTest();
     }
 
     @Test
@@ -213,101 +73,458 @@ public class HttpTaskManagerTest extends TaskManagerTest<HttpTaskManager> {
         taskManager.addTask(task2);
 
         HttpClient client = HttpClient.newHttpClient();
-        URI url = URI.create("http://localhost:8080/tasks/task/");
+        URI url = URI.create("http://localhost:8080/tasks/task");
         HttpRequest request = HttpRequest.newBuilder().uri(url).GET().build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        List<String> tasks = new ArrayList<>();
-        tasks.add(gson.toJson(task1));
-        tasks.add(gson.toJson(task2));
+        List<Task> tasks = List.of(task1, task2);
+        List<Task> tasksFromServer = new ArrayList<>();
 
-        assertEquals(tasks, response.body());
+        JsonElement jsonElement = JsonParser.parseString(response.body());
+        JsonArray jsonArray = jsonElement.getAsJsonArray();
+        for (JsonElement element : jsonArray) {
+            tasksFromServer.add(gson.fromJson(element, Task.class));
+        }
+
+        assertEquals(tasks, tasksFromServer);
     }
 
     @Test
-    public void endpointGetSubTasksTest() {
+    public void endpointGetSubTasksTest() throws IOException, InterruptedException {
+        SubTask stask1 = new SubTask("name1", "description1", 0, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("02.01.2023;12:00", FORMATTER), 0);
+        SubTask stask2 = new SubTask("name2", "description2", 0, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("03.01.2023;12:00", FORMATTER), 0);
+
+        taskManager.addSubTask(stask1);
+        taskManager.addSubTask(stask2);
+
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create("http://localhost:8080/tasks/subtask");
+        HttpRequest request = HttpRequest.newBuilder().uri(url).GET().build();
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        List<Task> tasks = List.of(stask1, stask2);
+        List<Task> tasksFromServer = new ArrayList<>();
+
+        JsonElement jsonElement = JsonParser.parseString(response.body());
+        JsonArray jsonArray = jsonElement.getAsJsonArray();
+        for (JsonElement element : jsonArray) {
+            tasksFromServer.add(gson.fromJson(element, SubTask.class));
+        }
+
+        assertEquals(tasks, tasksFromServer);
+    }
+
+    @Test
+    public void endpointGetEpicsTest() throws IOException, InterruptedException {
+        SubTask stask1 = new SubTask("name1", "description1", 0, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("02.01.2023;12:00", FORMATTER), 0);
+        SubTask stask2 = new SubTask("name2", "description2", 0, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("03.01.2023;12:00", FORMATTER), 0);
+        Epic epic1 = new Epic("name3", "description3", 0, Status.DONE, Duration.ZERO,
+                LocalDateTime.MAX);
+        Epic epic2 = new Epic("name4", "description4", 0, Status.NEW, Duration.ZERO,
+                LocalDateTime.MAX);
+
+        taskManager.addSubTask(stask1);
+        taskManager.addSubTask(stask2);
+        epic1.addSubTaskId(stask1.getId());
+        epic1.addSubTaskId(stask2.getId());
+        taskManager.addEpic(epic1);
+        taskManager.addEpic(epic2);
+
+        List<Task> tasks = List.of(epic1, epic2);
+        List<Task> tasksFromServer = new ArrayList<>();
+
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create("http://localhost:8080/tasks/epic");
+        HttpRequest request = HttpRequest.newBuilder().uri(url).GET().build();
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        JsonElement jsonElement = JsonParser.parseString(response.body());
+        JsonArray jsonArray = jsonElement.getAsJsonArray();
+        for (JsonElement element : jsonArray) {
+            tasksFromServer.add(gson.fromJson(element, Epic.class));
+        }
+
+        assertEquals(tasks, tasksFromServer);
+    }
+
+    @Test
+    public void endpointGetTaskByIdTest() throws IOException, InterruptedException {
+        Task task1 = new Task("name3", "description3", 0, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("06.01.2023;12:00", FORMATTER));
+
+        taskManager.addTask(task1);
+
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create("http://localhost:8080/tasks/task/?id=1");
+        HttpRequest request = HttpRequest.newBuilder().uri(url).GET().build();
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        JsonElement jsonElement = JsonParser.parseString(response.body());
+        Task taskFromServer = gson.fromJson(jsonElement, Task.class);
+        assertEquals(task1, taskFromServer);
 
     }
 
     @Test
-    public void endpointGetEpicsTest() {
+    public void endpointGetSubTaskByIdTest() throws IOException, InterruptedException {
+        SubTask stask1 = new SubTask("name1", "description1", 0, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("02.01.2023;12:00", FORMATTER), 0);
+        taskManager.addSubTask(stask1);
+
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create("http://localhost:8080/tasks/subtask/?id=1");
+        HttpRequest request = HttpRequest.newBuilder().uri(url).GET().build();
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        JsonElement jsonElement = JsonParser.parseString(response.body());
+        Task taskFromServer = gson.fromJson(jsonElement, SubTask.class);
+        assertEquals(stask1, taskFromServer);
+    }
+
+    @Test
+    public void endpointGetEpicByIdTest() throws IOException, InterruptedException {
+        Epic epic1 = new Epic("name3", "description3", 0, Status.DONE, Duration.ZERO,
+                LocalDateTime.MAX);
+        taskManager.addEpic(epic1);
+
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create("http://localhost:8080/tasks/epic/?id=1");
+        HttpRequest request = HttpRequest.newBuilder().uri(url).GET().build();
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        JsonElement jsonElement = JsonParser.parseString(response.body());
+        Task taskFromServer = gson.fromJson(jsonElement, Epic.class);
+        assertEquals(epic1, taskFromServer);
+    }
+
+    @Test
+    public void endpointGetAllTasksTest() throws IOException, InterruptedException {
+        SubTask stask1 = new SubTask("name1", "description1", 0, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("02.01.2023;12:00", FORMATTER), 0);
+        Task task1 = new Task("name3", "description3", 0, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("06.01.2023;12:00", FORMATTER));
+
+
+        taskManager.addTask(task1);
+        taskManager.addSubTask(stask1);
+
+        List<Task> priority = taskManager.getPrioritizedTasks();
+
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create("http://localhost:8080/tasks/");
+        HttpRequest request = HttpRequest.newBuilder().uri(url).GET().build();
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(List.of(stask1, task1), priority);
+        assertEquals(gson.toJson(priority), response.body());
+    }
+
+    @Test
+    public void postAddTaskTest() throws IOException, InterruptedException {
+        Task task1 = new Task("name3", "description3", 0, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("06.01.2023;12:00", FORMATTER));
+        Task task2 = new Task("name4", "description4", 0, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("06.01.2023;17:00", FORMATTER));
+
+        taskManager.addTask(task1);
+
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create("http://localhost:8080/tasks/task");
+        String json = gson.toJson(task2);
+        final HttpRequest.BodyPublisher body = HttpRequest.BodyPublishers.ofString(json);
+        HttpRequest request = HttpRequest.newBuilder().uri(url).POST(body).build();
+        client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(2, taskManager.getAllTasks().size());
+    }
+
+    @Test
+    public void postAddSubTaskTest() throws IOException, InterruptedException {
+        SubTask stask1 = new SubTask("name1", "description1", 0, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("02.01.2023;12:00", FORMATTER), 0);
+        SubTask stask2 = new SubTask("name2", "description2", 0, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("03.01.2023;12:00", FORMATTER), 0);
+
+        taskManager.addSubTask(stask1);
+
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create("http://localhost:8080/tasks/subtask");
+        String json = gson.toJson(stask2);
+        final HttpRequest.BodyPublisher body = HttpRequest.BodyPublishers.ofString(json);
+        HttpRequest request = HttpRequest.newBuilder().uri(url).POST(body).build();
+        client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(2, taskManager.getAllSubTasks().size());
+    }
+
+    @Test
+    public void postAddEpicTest() throws IOException, InterruptedException {
+        Epic epic1 = new Epic("name3", "description3", 0, Status.DONE, Duration.ZERO,
+                LocalDateTime.MAX);
+        Epic epic2 = new Epic("name4", "description4", 0, Status.NEW, Duration.ZERO,
+                LocalDateTime.MAX);
+
+        taskManager.addEpic(epic1);
+
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create("http://localhost:8080/tasks/epic");
+        String json = gson.toJson(epic2);
+        final HttpRequest.BodyPublisher body = HttpRequest.BodyPublishers.ofString(json);
+        HttpRequest request = HttpRequest.newBuilder().uri(url).POST(body).build();
+        client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(2, taskManager.getAllEpics().size());
+    }
+
+    @Test
+    public void postUpdateTaskTest() throws IOException, InterruptedException {
+        Task task1 = new Task("name3", "description3", 0, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("06.01.2023;12:00", FORMATTER));
+        Task task2 = new Task("name4", "description4", 1, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("06.01.2023;17:00", FORMATTER));
+
+        taskManager.addTask(task1);
+
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create("http://localhost:8080/tasks/task");
+        String json = gson.toJson(task2);
+        final HttpRequest.BodyPublisher body = HttpRequest.BodyPublishers.ofString(json);
+        HttpRequest request = HttpRequest.newBuilder().uri(url).POST(body).build();
+        client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(1, taskManager.getAllTasks().size());
+    }
+
+    @Test
+    public void postUpdateSubTaskTest() throws IOException, InterruptedException {
+        SubTask stask1 = new SubTask("name1", "description1", 0, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("02.01.2023;12:00", FORMATTER), 0);
+        SubTask stask2 = new SubTask("name2", "description2", 1, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("03.01.2023;12:00", FORMATTER), 0);
+
+        taskManager.addSubTask(stask1);
+
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create("http://localhost:8080/tasks/subtask");
+        String json = gson.toJson(stask2);
+        final HttpRequest.BodyPublisher body = HttpRequest.BodyPublishers.ofString(json);
+        HttpRequest request = HttpRequest.newBuilder().uri(url).POST(body).build();
+        client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(1, taskManager.getAllSubTasks().size());
 
     }
 
     @Test
-    public void endpointGetTaskByIdTest() {
+    public void postUpdateEpicTest() throws IOException, InterruptedException {
+        Epic epic1 = new Epic("name3", "description3", 0, Status.DONE, Duration.ZERO,
+                LocalDateTime.MAX);
+        Epic epic2 = new Epic("name4", "description4", 1, Status.NEW, Duration.ZERO,
+                LocalDateTime.MAX);
+
+        taskManager.addEpic(epic1);
+
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create("http://localhost:8080/tasks/epic");
+        String json = gson.toJson(epic2);
+        final HttpRequest.BodyPublisher body = HttpRequest.BodyPublishers.ofString(json);
+        HttpRequest request = HttpRequest.newBuilder().uri(url).POST(body).build();
+        client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(1, taskManager.getAllEpics().size());
 
     }
 
     @Test
-    public void endpointGetSubTaskByIdTest() {
+    public void deleteTaskTest() throws IOException, InterruptedException {
+        Task task1 = new Task("name3", "description3", 0, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("06.01.2023;12:00", FORMATTER));
+        Task task2 = new Task("name4", "description4", 0, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("06.01.2023;17:00", FORMATTER));
+
+        taskManager.addTask(task1);
+        taskManager.addTask(task2);
+
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create("http://localhost:8080/tasks/task/?id=1");
+        HttpRequest request = HttpRequest.newBuilder().uri(url).DELETE().build();
+        client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(1, taskManager.getAllTasks().size());
+    }
+
+    @Test
+    public void deleteSubTaskTest() throws IOException, InterruptedException {
+        SubTask stask1 = new SubTask("name1", "description1", 0, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("02.01.2023;12:00", FORMATTER), 0);
+        SubTask stask2 = new SubTask("name2", "description2", 1, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("03.01.2023;12:00", FORMATTER), 0);
+
+        taskManager.addSubTask(stask1);
+        taskManager.addSubTask(stask2);
+
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create("http://localhost:8080/tasks/subtask/?id=1");
+        HttpRequest request = HttpRequest.newBuilder().uri(url).DELETE().build();
+        client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(1, taskManager.getAllSubTasks().size());
+    }
+
+    @Test
+    public void deleteEpicTest() throws IOException, InterruptedException {
+        Epic epic1 = new Epic("name3", "description3", 0, Status.DONE, Duration.ZERO,
+                LocalDateTime.MAX);
+        Epic epic2 = new Epic("name4", "description4", 1, Status.NEW, Duration.ZERO,
+                LocalDateTime.MAX);
+
+        taskManager.addEpic(epic1);
+        taskManager.addEpic(epic2);
+
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create("http://localhost:8080/tasks/epic/?id=1");
+        HttpRequest request = HttpRequest.newBuilder().uri(url).DELETE().build();
+        client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(1, taskManager.getAllEpics().size());
+    }
+
+    @Test
+    public void deleteAllTasksTest() throws IOException, InterruptedException {
+        SubTask stask1 = new SubTask("name1", "description1", 0, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("02.01.2023;12:00", FORMATTER), 0);
+        Task task1 = new Task("name3", "description3", 0, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("06.01.2023;12:00", FORMATTER));
+
+
+        taskManager.addTask(task1);
+        taskManager.addSubTask(stask1);
+
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create("http://localhost:8080/tasks/");
+        HttpRequest request = HttpRequest.newBuilder().uri(url).DELETE().build();
+        client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(0, taskManager.getPrioritizedTasks().size());
 
     }
 
     @Test
-    public void endpointGetEpicByIdTest() {
+    public void deleteTasksTest() throws IOException, InterruptedException {
+        Task task1 = new Task("name3", "description3", 0, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("06.01.2023;12:00", FORMATTER));
+        Task task2 = new Task("name4", "description4", 1, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("06.01.2023;17:00", FORMATTER));
 
+        taskManager.addTask(task1);
+        taskManager.addTask(task2);
+
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create("http://localhost:8080/tasks/task");
+        HttpRequest request = HttpRequest.newBuilder().uri(url).DELETE().build();
+        client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(0, taskManager.getAllTasks().size());
     }
 
     @Test
-    public void endpointGetAllTasksTest() {
+    public void deleteSubTasksTest() throws IOException, InterruptedException {
+        SubTask stask1 = new SubTask("name1", "description1", 0, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("02.01.2023;12:00", FORMATTER), 0);
+        SubTask stask2 = new SubTask("name2", "description2", 1, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("03.01.2023;12:00", FORMATTER), 0);
 
+        taskManager.addSubTask(stask1);
+        taskManager.addSubTask(stask2);
+
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create("http://localhost:8080/tasks/subtask");
+        HttpRequest request = HttpRequest.newBuilder().uri(url).DELETE().build();
+        client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(0, taskManager.getAllSubTasks().size());
     }
 
     @Test
-    public void postAddTaskTest() {
+    public void deleteEpicsTest() throws IOException, InterruptedException {
+        Epic epic1 = new Epic("name3", "description3", 0, Status.DONE, Duration.ZERO,
+                LocalDateTime.MAX);
+        Epic epic2 = new Epic("name4", "description4", 1, Status.NEW, Duration.ZERO,
+                LocalDateTime.MAX);
 
+        taskManager.addEpic(epic1);
+        taskManager.addEpic(epic2);
+
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create("http://localhost:8080/tasks/epic");
+        HttpRequest request = HttpRequest.newBuilder().uri(url).DELETE().build();
+        client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(0, taskManager.getAllEpics().size());
     }
 
     @Test
-    public void postAddSubTaskTest() {
+    public void getEpicSubtasksTest() throws IOException, InterruptedException {
+        SubTask stask1 = new SubTask("name1", "description1", 0, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("02.01.2023;12:00", FORMATTER), 0);
+        SubTask stask2 = new SubTask("name2", "description2", 0, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("03.01.2023;12:00", FORMATTER), 0);
+        Epic epic1 = new Epic("name3", "description3", 0, Status.DONE, Duration.ZERO,
+                LocalDateTime.MAX);
 
+        taskManager.addSubTask(stask1);
+        taskManager.addSubTask(stask2);
+        epic1.addSubTaskId(stask1.getId());
+        epic1.addSubTaskId(stask2.getId());
+        taskManager.addEpic(epic1);
+
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create("http://localhost:8080/tasks/subtask/epic/?id=3");
+        HttpRequest request = HttpRequest.newBuilder().uri(url).GET().build();
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        List<Integer> subtasks = List.of(1, 2);
+
+        assertEquals(gson.toJson(subtasks), response.body());
     }
 
     @Test
-    public void postAddEpicTest() {
+    public void getHistoryTest() throws IOException, InterruptedException {
+        Task task1 = new Task("name3", "description3", 0, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("06.01.2023;12:00", FORMATTER));
+        Task task2 = new Task("name4", "description4", 1, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("06.01.2023;17:00", FORMATTER));
+        SubTask stask1 = new SubTask("name1", "description1", 0, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("02.01.2023;12:00", FORMATTER), 0);
+        SubTask stask2 = new SubTask("name2", "description2", 0, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("03.01.2023;12:00", FORMATTER), 0);
+        Epic epic1 = new Epic("name3", "description3", 0, Status.DONE, Duration.ZERO,
+                LocalDateTime.MAX);
 
+        taskManager.addTask(task1);
+        taskManager.addTask(task2);
+        taskManager.addSubTask(stask1);
+        taskManager.addSubTask(stask2);
+        epic1.addSubTaskId(stask1.getId());
+        epic1.addSubTaskId(stask2.getId());
+        taskManager.addEpic(epic1);
+
+        taskManager.getTask(1);
+        taskManager.getTask(2);
+        taskManager.getSubTask(3);
+        taskManager.getEpic(5);
+
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create("http://localhost:8080/tasks/history");
+        HttpRequest request = HttpRequest.newBuilder().uri(url).GET().build();
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        List<Task> rightHistory = List.of(task1, task2, stask1, epic1);
+
+        assertEquals(gson.toJson(rightHistory), response.body());
     }
-
-    @Test
-    public void postUpdateTaskTest() {
-
-    }
-
-    @Test
-    public void postUpdateSubTaskTest() {
-
-    }
-
-    @Test
-    public void postUpdateEpicTest() {
-
-    }
-
-    @Test
-    public void deleteTaskTest() {}
-
-    @Test
-    public void deleteSubTaskTest() {}
-
-    @Test
-    public void deleteEpicTest() {}
-
-    @Test
-    public void deleteAllTasksTest() {}
-
-    @Test
-    public void deleteTasksTest() {}
-
-    @Test
-    public void deleteSubTasksTest() {}
-
-    @Test
-    public void deleteEpicsTest() {}
-
-    @Test
-    public void getEpicSubtasksTest() {}
-
-    @Test
-    public void getHistoryTest() {}
 }
