@@ -54,6 +54,23 @@ public class HttpTaskServer {
                 LocalDateTime.parse("06.01.2023;17:00", FORMATTER));
         new KVServer().start();
         HttpTaskServer server = new HttpTaskServer();
+
+        TaskManager manager = server.getTaskManager();
+
+        manager.addTask(task1);
+        manager.addTask(task2);
+        manager.addSubTask(stask1);
+        manager.addSubTask(stask2);
+        epic.addSubTaskId(stask1.getId());
+        epic.addSubTaskId(stask2.getId());
+        manager.addEpic(epic);
+        manager.getTask(1);
+
+
+    }
+
+    public TaskManager getTaskManager() {
+        return taskManager;
     }
 
     private Endpoint getEndpoint(String path, String query, String requestMethod) {

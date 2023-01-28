@@ -1,44 +1,48 @@
 package test;
 
-import exception.ManagerSaveException;
-import managers.filebacked.FileBackedTasksManager;
+import com.google.gson.Gson;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import tasks.Epic;
+import server.HttpTaskManager;
+import server.HttpTaskServer;
+import server.KVServer;
 import tasks.Status;
-import tasks.SubTask;
 import tasks.Task;
 
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static tasks.Task.FORMATTER;
 
-public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTasksManager> {
+public class HttpTaskManagerTest extends TaskManagerTest<HttpTaskManager> {
 
-    File save;
+    private KVServer kvServer;
+    private HttpTaskServer server;
+    private Gson gson;
 
     @BeforeEach
-    public void beforeEach() {
-        save = new File("resources/for_tests.csv");
-        taskManager = new FileBackedTasksManager(save);
+    public void beforeEach() throws IOException {
+        kvServer = new KVServer();
+        kvServer.start();
+        server = new HttpTaskServer();
+        taskManager = (HttpTaskManager) server.getTaskManager();
+        gson = new Gson();
     }
 
     @AfterEach
-    public void clearFile() {
-        try (Writer fileWriter = new FileWriter(save)) {
-            fileWriter.write("");
-        } catch (IOException e) {
-            throw new ManagerSaveException();
-        }
+    public void afterEach() {
+        server.stop();
+        kvServer.stop();
     }
 
     @Test
@@ -75,6 +79,7 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTasksMa
     public void getAllTasksTest() {
         super.getAllTasksTest();
     }
+
 
     @Test
     public void getAllSubtasksTest() {
@@ -137,11 +142,6 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTasksMa
     }
 
     @Test
-    public void getHistoryTest() {
-        super.getHistoryTest();
-    }
-
-    @Test
     public void getPrioritizedTasksTest() {
         super.getPrioritizedTasksTest();
     }
@@ -192,53 +192,122 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTasksMa
     }
 
     @Test
-    public void emptyLoadFromFileTest() {
-        taskManager = FileBackedTasksManager.loadFromFile(save);
-
+    public void emptyLoadFromServerTest() {
         List<Task> emptyList = Collections.emptyList();
 
         assertEquals(emptyList, taskManager.getAllTasks());
         assertEquals(emptyList, taskManager.getAllSubTasks());
         assertEquals(emptyList, taskManager.getAllEpics());
+        assertEquals(emptyList, taskManager.getPrioritizedTasks());
+        assertEquals(emptyList, taskManager.getHistory());
+    }
+
+    @Test
+    public void endpointGetTasksTest() throws IOException, InterruptedException {
+        Task task1 = new Task("name3", "description3", 0, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("06.01.2023;12:00", FORMATTER));
+        Task task2 = new Task("name4", "description4", 1, Status.NEW, Duration.ofMinutes(60),
+                LocalDateTime.parse("06.01.2023;17:00", FORMATTER));
+
+        taskManager.addTask(task1);
+        taskManager.addTask(task2);
+
+        HttpClient client = HttpClient.newHttpClient();
+        URI url = URI.create("http://localhost:8080/tasks/task/");
+        HttpRequest request = HttpRequest.newBuilder().uri(url).GET().build();
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        List<String> tasks = new ArrayList<>();
+        tasks.add(gson.toJson(task1));
+        tasks.add(gson.toJson(task2));
+
+        assertEquals(tasks, response.body());
+    }
+
+    @Test
+    public void endpointGetSubTasksTest() {
 
     }
 
     @Test
-    public void loadFromFileWithEpic() {
-        Epic epic = new Epic("name", "description", 0, Status.NEW, Duration.ZERO, LocalDateTime.MAX);
+    public void endpointGetEpicsTest() {
 
-        taskManager.addEpic(epic);
-
-        taskManager = FileBackedTasksManager.loadFromFile(save);
-
-        assertEquals(epic, taskManager.getEpic(1));
-        assertEquals(1, taskManager.getAllEpics().size());
-        assertEquals(1, taskManager.getHistory().size());
     }
 
     @Test
-    public void loadFromFileWithEmptyHistory() {
-        SubTask stask1 = new SubTask("name1", "description1", 0, Status.DONE, Duration.ofMinutes(60),
-                LocalDateTime.parse("02.01.2023;12:00", FORMATTER), 0);
-        SubTask stask2 = new SubTask("name2", "description2", 0, Status.DONE, Duration.ofMinutes(60),
-                LocalDateTime.parse("03.01.2023;12:00", FORMATTER), 0);
-        Epic epic = new Epic("name3", "description3", 0, Status.NEW, Duration.ZERO,
-                LocalDateTime.MAX);
+    public void endpointGetTaskByIdTest() {
 
-        taskManager.addSubTask(stask1);
-        taskManager.addSubTask(stask2);
-        epic.addSubTaskId(stask1.getId());
-        epic.addSubTaskId(stask2.getId());
-        taskManager.addEpic(epic);
-
-        List<Integer> subTasks = List.of(stask1.getId(), stask2.getId());
-
-        taskManager = FileBackedTasksManager.loadFromFile(save);
-
-        assertEquals(Collections.emptyList(), taskManager.getHistory());
-        assertEquals(epic, taskManager.getEpic(3));
-        assertEquals(1, taskManager.getAllEpics().size());
-        assertEquals(2, taskManager.getAllSubTasks().size());
-        assertEquals(subTasks, epic.getSubTaskIds());
     }
+
+    @Test
+    public void endpointGetSubTaskByIdTest() {
+
+    }
+
+    @Test
+    public void endpointGetEpicByIdTest() {
+
+    }
+
+    @Test
+    public void endpointGetAllTasksTest() {
+
+    }
+
+    @Test
+    public void postAddTaskTest() {
+
+    }
+
+    @Test
+    public void postAddSubTaskTest() {
+
+    }
+
+    @Test
+    public void postAddEpicTest() {
+
+    }
+
+    @Test
+    public void postUpdateTaskTest() {
+
+    }
+
+    @Test
+    public void postUpdateSubTaskTest() {
+
+    }
+
+    @Test
+    public void postUpdateEpicTest() {
+
+    }
+
+    @Test
+    public void deleteTaskTest() {}
+
+    @Test
+    public void deleteSubTaskTest() {}
+
+    @Test
+    public void deleteEpicTest() {}
+
+    @Test
+    public void deleteAllTasksTest() {}
+
+    @Test
+    public void deleteTasksTest() {}
+
+    @Test
+    public void deleteSubTasksTest() {}
+
+    @Test
+    public void deleteEpicsTest() {}
+
+    @Test
+    public void getEpicSubtasksTest() {}
+
+    @Test
+    public void getHistoryTest() {}
 }

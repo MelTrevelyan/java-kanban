@@ -3,20 +3,13 @@ package server;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
-import tasks.Status;
-import tasks.SubTask;
-import tasks.Task;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.URI;
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static tasks.Task.FORMATTER;
 
 public class KVServer {
     public static final int PORT = 8078;
@@ -35,49 +28,27 @@ public class KVServer {
         server.createContext("/load", this::load);
     }
 
-    public static void main(String[] args) throws IOException, InterruptedException {
-        Task task1 = new Task("исх задача", "description3", 1, Status.NEW, Duration.ofMinutes(60),
-                LocalDateTime.parse("06.01.2023;12:00", FORMATTER));
-        Task task2 = new Task("задача на замену", "description4", 3, Status.NEW,
-                Duration.ofMinutes(60), LocalDateTime.parse("06.01.2023;17:00", FORMATTER));
-        SubTask stask1 = new SubTask("исх подзадача", "description1", 2, Status.NEW,
-                Duration.ofMinutes(60), LocalDateTime.parse("02.01.2023;12:00", FORMATTER), 0);
-        SubTask stask2 = new SubTask("подзадача на замену", "description2", 4, Status.NEW,
-                Duration.ofMinutes(60), LocalDateTime.parse("03.01.2023;12:00", FORMATTER), 0);
-        Gson gson = new Gson();
-        new KVServer().start();
-        KVTaskClient client = new KVTaskClient(URI.create("http://localhost:8078/register"));
-        client.put("allTasks", gson.toJson(task1));
-        client.put("allSubtasks", gson.toJson(stask1));
-        client.put("allTasks", gson.toJson(task2));
-        client.put("allSubtasks", gson.toJson(stask2));
-
-        System.out.println(client.load("allTasks"));
-        System.out.println(client.load("allSubtasks"));
-    }
-
     private void load(HttpExchange h) throws IOException {
         if (!hasAuth(h)) {
             System.out.println("Запрос неавторизован, нужен параметр в query API_TOKEN со значением апи-ключа");
             h.sendResponseHeaders(403, 0);
             return;
         }
-        System.out.println("\n/load");
         if ("GET".equals(h.getRequestMethod())) {
             String key = h.getRequestURI().getPath().replaceFirst("/load/", "");
             if (data.containsKey(key)) {
                 String value = data.get(key);
                 sendText(h, value);
+                h.close();
                 return;
             }
-            System.out.println("Отправлен неправильный ключ, или значение не было загружено");
             sendText(h, gson.toJson(null));
         }
+        h.close();
     }
 
     private void save(HttpExchange h) throws IOException {
         try {
-            System.out.println("\n/save");
             if (!hasAuth(h)) {
                 System.out.println("Запрос неавторизован, нужен параметр в query API_TOKEN со значением апи-ключа");
                 h.sendResponseHeaders(403, 0);
@@ -97,7 +68,6 @@ public class KVServer {
                     return;
                 }
                 data.put(key, value);
-                System.out.println("Значение для ключа " + key + " успешно обновлено!");
                 h.sendResponseHeaders(200, 0);
             } else {
                 System.out.println("/save ждёт POST-запрос, а получил: " + h.getRequestMethod());
@@ -147,5 +117,10 @@ public class KVServer {
         h.getResponseHeaders().add("Content-Type", "application/json");
         h.sendResponseHeaders(200, resp.length);
         h.getResponseBody().write(resp);
+    }
+
+    public void stop() {
+        server.stop(0);
+        System.out.println("Остановили сервер на порту " + PORT);
     }
 }
