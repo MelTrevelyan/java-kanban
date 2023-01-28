@@ -40,62 +40,65 @@ public class HttpTaskServer {
         return taskManager;
     }
 
-    private Endpoint getEndpoint(String path, String query, String requestMethod) {
-
-        Endpoint defaultEndpoint = Endpoint.UNKNOWN;
-
-        switch (requestMethod) {
-            case "GET":
-                if (Pattern.matches("^/tasks/task$", path)) {
-                    return Endpoint.GET_TASKS;
-                } else if (Pattern.matches("^/tasks/subtask$", path)) {
-                    return Endpoint.GET_SUBTASKS;
-                } else if (Pattern.matches("^/tasks/epic$", path)) {
-                    return Endpoint.GET_EPICS;
-                } else if (Pattern.matches("^/tasks/$", path)) {
-                    return Endpoint.GET_ALL_TASKS;
-                } else if (Pattern.matches("^/tasks/task/id=\\d+$", path + query)) {
-                    return Endpoint.GET_TASK_BY_ID;
-                } else if (Pattern.matches("^/tasks/subtask/id=\\d+$", path + query)) {
-                    return Endpoint.GET_SUBTASK_BY_ID;
-                } else if (Pattern.matches("^/tasks/epic/id=\\d+$", path + query)) {
-                    return Endpoint.GET_EPIC_BY_ID;
-                } else if (Pattern.matches("^/tasks/subtask/epic/id=\\d+$", path + query)) {
-                    return Endpoint.GET_EPIC_SUBTASKS;
-                } else if (Pattern.matches("^/tasks/history$", path)) {
-                    return Endpoint.GET_HISTORY;
-                }
-                break;
-            case "POST":
-                if (Pattern.matches("^/tasks/task$", path)) {
-                    return Endpoint.POST_TASK;
-                } else if (Pattern.matches("^/tasks/subtask$", path)) {
-                    return Endpoint.POST_SUBTASK;
-                } else if (Pattern.matches("^/tasks/epic$", path)) {
-                    return Endpoint.POST_EPIC;
-                }
-                break;
-            case "DELETE":
-                if (Pattern.matches("^/tasks/task/id=\\d+$", path + query)) {
-                    return Endpoint.DELETE_TASK;
-                } else if (Pattern.matches("^/tasks/subtask/id=\\d+$", path + query)) {
-                    return Endpoint.DELETE_SUBTASK;
-                } else if (Pattern.matches("^/tasks/epic/id=\\d+$", path + query)) {
-                    return Endpoint.DELETE_EPIC;
-                } else if (Pattern.matches("^/tasks/task$", path)) {
-                    return Endpoint.DELETE_TASKS;
-                } else if (Pattern.matches("^/tasks/subtask$", path)) {
-                    return Endpoint.DELETE_SUBTASKS;
-                } else if (Pattern.matches("^/tasks/epic$", path)) {
-                    return Endpoint.DELETE_EPICS;
-                } else if (Pattern.matches("^/tasks/$", path)) {
-                    return Endpoint.DELETE_ALL_TASKS;
-                }
-        }
-        return defaultEndpoint;
-    }
-
     class TasksHandler implements HttpHandler {
+
+        private Endpoint getEndpoint(String path, String query, String requestMethod) {
+
+            Endpoint defaultEndpoint = Endpoint.UNKNOWN;
+
+            switch (requestMethod) {
+                case "GET":
+                    if (Pattern.matches("^/tasks/task$", path)) {
+                        return Endpoint.GET_TASKS;
+                    } else if (Pattern.matches("^/tasks/subtask$", path)) {
+                        return Endpoint.GET_SUBTASKS;
+                    } else if (Pattern.matches("^/tasks/epic$", path)) {
+                        return Endpoint.GET_EPICS;
+                    } else if (Pattern.matches("^/tasks/$", path)) {
+                        return Endpoint.GET_ALL_TASKS;
+                    } else if (Pattern.matches("^/tasks/task/id=\\d+$", path + query)) {
+                        return Endpoint.GET_TASK_BY_ID;
+                    } else if (Pattern.matches("^/tasks/subtask/id=\\d+$", path + query)) {
+                        return Endpoint.GET_SUBTASK_BY_ID;
+                    } else if (Pattern.matches("^/tasks/epic/id=\\d+$", path + query)) {
+                        return Endpoint.GET_EPIC_BY_ID;
+                    } else if (Pattern.matches("^/tasks/subtask/epic/id=\\d+$", path + query)) {
+                        return Endpoint.GET_EPIC_SUBTASKS;
+                    } else if (Pattern.matches("^/tasks/history$", path)) {
+                        return Endpoint.GET_HISTORY;
+                    }
+                    break;
+                case "POST":
+                    if (Pattern.matches("^/tasks/task$", path)) {
+                        return Endpoint.POST_TASK;
+                    } else if (Pattern.matches("^/tasks/subtask$", path)) {
+                        return Endpoint.POST_SUBTASK;
+                    } else if (Pattern.matches("^/tasks/epic$", path)) {
+                        return Endpoint.POST_EPIC;
+                    }
+                    break;
+                case "DELETE":
+                    if (Pattern.matches("^/tasks/task/id=\\d+$", path + query)) {
+                        return Endpoint.DELETE_TASK;
+                    } else if (Pattern.matches("^/tasks/subtask/id=\\d+$", path + query)) {
+                        return Endpoint.DELETE_SUBTASK;
+                    } else if (Pattern.matches("^/tasks/epic/id=\\d+$", path + query)) {
+                        return Endpoint.DELETE_EPIC;
+                    } else if (Pattern.matches("^/tasks/task$", path)) {
+                        return Endpoint.DELETE_TASKS;
+                    } else if (Pattern.matches("^/tasks/subtask$", path)) {
+                        return Endpoint.DELETE_SUBTASKS;
+                    } else if (Pattern.matches("^/tasks/epic$", path)) {
+                        return Endpoint.DELETE_EPICS;
+                    } else if (Pattern.matches("^/tasks/$", path)) {
+                        return Endpoint.DELETE_ALL_TASKS;
+                    }
+                default:
+                    System.out.println("Эндпоинт не найден");
+            }
+            return defaultEndpoint;
+        }
+
         @Override
         public void handle(HttpExchange exchange) {
             String taskId;
@@ -271,6 +274,8 @@ public class HttpTaskServer {
                         break;
                     case UNKNOWN:
                         System.out.println("Некорректный запрос");
+                        exchange.sendResponseHeaders(405, 0);
+                    default:
                         exchange.sendResponseHeaders(405, 0);
                 }
             } catch (Exception e) {

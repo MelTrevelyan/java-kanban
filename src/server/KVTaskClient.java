@@ -24,7 +24,7 @@ public class KVTaskClient {
         try {
             response = client.send(request, handler);
             apiToken = response.body();
-        } catch (Exception e) {
+        } catch (InterruptedException | IOException e) {
             e.printStackTrace();
         }
     }
